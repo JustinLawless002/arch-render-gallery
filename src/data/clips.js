@@ -42,15 +42,10 @@ const clips = [
   {
     id: 'chocomelt-bahrain',
     slug: 'chocomelt',
-    title: 'Chocomelt — Bahrain',
-    src: '/videos/Chocomelt_Bahrain.mp4',
-    poster: '/videos/posters/Chocomelt_Bahrain.jpg',
-  },
-  // TEMPORARY: Chocomelt2x.jpeg points to the same Bahrain clip as
-  // Chocomelt.jpeg until you clarify what distinguishes the two images.
-  {
-    id: 'chocomelt-bahrain-2x',
-    slug: 'chocomelt2x',
+    // TEMPORARY: Chocomelt2x.jpeg is aliased to this same clip until you
+    // clarify what distinguishes the two still images. Only one card shows
+    // in the Motion grid; both project pages will still find this video.
+    aliasSlugs: ['chocomelt2x'],
     title: 'Chocomelt — Bahrain',
     src: '/videos/Chocomelt_Bahrain.mp4',
     poster: '/videos/posters/Chocomelt_Bahrain.jpg',
@@ -79,7 +74,7 @@ const clips = [
 ];
 
 export function getClipForSlug(slug) {
-  return clips.find((c) => c.slug === slug) || null;
+  return clips.find((c) => c.slug === slug || c.aliasSlugs?.includes(slug)) || null;
 }
 
 export default clips;
