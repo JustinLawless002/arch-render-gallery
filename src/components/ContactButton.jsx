@@ -64,8 +64,7 @@ export default function ContactButton() {
 
       {open && (
         <div className="contact-panel">
-          <a href="mailto:Jlawless720@gmail.com">Jlawless720@gmail.com</a>
-          <a href="mailto:justin_lawless@hotmail.com">justin_lawless@hotmail.com</a>
+          <a href="mailto:justin@primedesign.design">justin@primedesign.design</a>
           <a href="https://wa.me/6281337828881" target="_blank" rel="noopener noreferrer">
             WhatsApp +62 813-3782-8881
           </a>

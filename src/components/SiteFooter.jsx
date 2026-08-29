@@ -54,8 +54,7 @@ export default function SiteFooter() {
       <div className="footer-columns">
         <div className="footer-col">
           <div className="footer-heading">Contact</div>
-          <a href="mailto:Jlawless720@gmail.com">Jlawless720@gmail.com</a>
-          <a href="mailto:justin_lawless@hotmail.com">justin_lawless@hotmail.com</a>
+          <a href="mailto:justin@primedesign.design">justin@primedesign.design</a>
           <a href="https://wa.me/6281337828881" target="_blank" rel="noopener noreferrer">
             WhatsApp +62 813-3782-8881
           </a>
