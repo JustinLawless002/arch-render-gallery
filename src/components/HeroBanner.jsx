@@ -67,7 +67,8 @@ export default function HeroBanner({ children }) {
 
   if (reducedMotion) {
     return (
-      <section className="hero" style={{ backgroundImage: `url(${POSTER_SRC})` }}>
+      <section className="hero">
+        <img className="hero__poster" src={POSTER_SRC} alt="" aria-hidden="true" />
         <div className="hero__scrim" />
         <div className="hero__content">{children}</div>
       </section>

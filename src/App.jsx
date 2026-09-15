@@ -28,13 +28,19 @@ function Home() {
     <>
       <main>
         <HeroBanner>
-          <img src={logoIcon} alt="Prime Design logo" className="hero__logo" />
-          <p className="hero__tagline">
-            Architectural design, visualization &amp; AI-assisted rendering
+          <h2 className="hero__headline">Bringing architectural vision to life</h2>
+          <p className="hero__subtext">
+            Concept renders, animations, and technical drawings — refined
+            through AI-assisted workflows.
           </p>
+          <a href="#gallery" className="hero__cta">
+            View portfolio
+          </a>
         </HeroBanner>
 
-        <Gallery />
+        <div id="gallery">
+          <Gallery />
+        </div>
         <MotionSection clips={clips} />
         <About />
         <Services />
@@ -48,8 +54,24 @@ export default function App() {
   return (
     <div className="page">
       <style>{`
+        :root {
+          /* Used by the header (fixed height) and the hero (negative
+             margin to sit edge-to-edge underneath it). Keep both in sync
+             if you resize the header. */
+          --header-h: 88px;
+        }
+
         .site-header {
           align-items: center;
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: var(--header-h);
+          z-index: 100;
+          background: rgba(10, 10, 10, 0.5);
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
         }
         .brand {
           display: flex;
@@ -66,6 +88,13 @@ export default function App() {
         .brand-text {
           display: flex;
           flex-direction: column;
+        }
+
+        /* Pushes every routed page down below the fixed header. The hero
+           (Home only) cancels this out itself via a negative margin so it
+           still reaches the true top of the viewport — see HeroBanner.css. */
+        .route-content {
+          padding-top: var(--header-h);
         }
       `}</style>
 
@@ -86,10 +115,12 @@ export default function App() {
         </div>
       </header>
 
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/project/:slug" element={<ProjectDetail />} />
-      </Routes>
+      <div className="route-content">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/project/:slug" element={<ProjectDetail />} />
+        </Routes>
+      </div>
     </div>
   );
 }

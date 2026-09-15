@@ -5,6 +5,13 @@
   min-height: 560px;
   overflow: hidden;
   background: #0a0a0a; /* shows briefly before the poster/video paints */
+
+  /* The header is now a fixed, translucent bar (see App.jsx). Everything
+     that isn't the hero gets pushed down by --header-h via .route-content
+     padding-top; the hero pulls itself back up by the same amount so it
+     still starts at the true top of the viewport, edge to edge, with the
+     header floating transparently on top of it. */
+  margin-top: calc(-1 * var(--header-h, 88px));
 }
 
 .hero__poster,
@@ -30,17 +37,18 @@
   opacity: 1;
 }
 
-/* A quiet, even scrim rather than a decorative gradient wash — just enough
-   for the overlaid type to stay legible against any of the four clips. */
+/* Weighted toward the bottom, where the headline sits, but still present
+   near the top so the translucent header stays legible over sky/light
+   footage. Not a decorative wash — just enough for contrast. */
 .hero__scrim {
   position: absolute;
   inset: 0;
   z-index: 2;
   background: linear-gradient(
     to bottom,
-    rgba(0, 0, 0, 0.45) 0%,
-    rgba(0, 0, 0, 0.2) 40%,
-    rgba(0, 0, 0, 0.55) 100%
+    rgba(0, 0, 0, 0.5) 0%,
+    rgba(0, 0, 0, 0.15) 45%,
+    rgba(0, 0, 0, 0.7) 100%
   );
 }
 
@@ -50,10 +58,46 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-end;
   align-items: flex-start;
-  padding: 0 6vw;
+  gap: 18px;
+  padding: 0 6vw 9vh;
   color: #f5f4f1;
+  max-width: 640px;
+}
+
+.hero__headline {
+  margin: 0;
+  font-size: clamp(2.1rem, 4.2vw, 3.4rem);
+  line-height: 1.08;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.hero__subtext {
+  margin: 0;
+  font-size: clamp(0.95rem, 1.3vw, 1.15rem);
+  line-height: 1.5;
+  color: rgba(245, 244, 241, 0.82);
+  max-width: 46ch;
+}
+
+.hero__cta {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 12px 26px;
+  border: 1px solid rgba(245, 244, 241, 0.55);
+  color: #f5f4f1;
+  text-decoration: none;
+  font-size: 0.95rem;
+  letter-spacing: 0.01em;
+  transition: background 200ms ease, color 200ms ease, border-color 200ms ease;
+}
+
+.hero__cta:hover {
+  background: #f5f4f1;
+  color: #0a0a0a;
+  border-color: #f5f4f1;
 }
 
 @media (max-width: 640px) {
@@ -62,8 +106,7 @@
   }
 
   .hero__content {
-    padding: 0 6vw;
-    align-items: center;
-    text-align: center;
+    padding: 0 6vw 7vh;
+    max-width: none;
   }
 }
