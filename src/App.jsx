@@ -7,10 +7,11 @@ import About from './components/About.jsx';
 import Services from './components/Services.jsx';
 import SiteFooter from './components/SiteFooter.jsx';
 import ProjectDetail from './components/ProjectDetail.jsx';
+import HeroBanner from './components/HeroBanner.jsx';
 import logoIcon from './assets/logo-icon.png';
 import clips from './data/clips.js';
 
-// React Router doesn't reset scroll position on navigation by default —
+// React Router doesn't reset scroll position on navigation by default â€”
 // without this, clicking a gallery thumbnail while scrolled halfway down
 // the homepage lands the project page at that same pixel offset instead
 // of at the top.
@@ -26,6 +27,13 @@ function Home() {
   return (
     <>
       <main>
+        <HeroBanner>
+          <img src={logoIcon} alt="Prime Design logo" className="hero__logo" />
+          <p className="hero__tagline">
+            Architectural design, visualization &amp; AI-assisted rendering
+          </p>
+        </HeroBanner>
+
         <Gallery />
         <MotionSection clips={clips} />
         <About />
