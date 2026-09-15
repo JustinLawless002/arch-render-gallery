@@ -8,6 +8,7 @@ import Services from './components/Services.jsx';
 import SiteFooter from './components/SiteFooter.jsx';
 import ProjectDetail from './components/ProjectDetail.jsx';
 import HeroBanner from './components/HeroBanner.jsx';
+import ProcessPage from './components/ProcessPage.jsx';
 import logoIcon from './assets/logo-icon.png';
 import clips from './data/clips.js';
 
@@ -33,9 +34,22 @@ function Home() {
             Concept renders, animations, and technical drawings — refined
             through AI-assisted workflows.
           </p>
-          <a href="#gallery" className="hero__cta">
-            View portfolio
-          </a>
+          <div className="hero__actions">
+            <a href="#gallery" className="hero__cta">
+              View portfolio
+            </a>
+            <Link to="/process" className="hero__cta">
+              The process
+            </Link>
+            {/*
+              ContactButton renders its own rollout panel (emails + WhatsApp).
+              It isn't guaranteed to pick up hero__cta's look unless it
+              forwards a className prop down to its root button — check its
+              source and adjust if the styling doesn't match View
+              portfolio/The process once this is live.
+            */}
+            <ContactButton className="hero__cta" />
+          </div>
         </HeroBanner>
 
         <div id="gallery">
@@ -110,15 +124,13 @@ export default function App() {
             </span>
           </div>
         </Link>
-        <div className="header-right">
-          <ContactButton />
-        </div>
       </header>
 
       <div className="route-content">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/project/:slug" element={<ProjectDetail />} />
+          <Route path="/process" element={<ProcessPage />} />
         </Routes>
       </div>
     </div>

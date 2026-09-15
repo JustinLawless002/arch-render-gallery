@@ -42,12 +42,6 @@ export default function Services() {
           border-bottom: 1px solid var(--line);
           font-size: 16px;
           color: var(--text-dim);
-          transition: color 0.2s ease, padding-left 0.2s ease, border-color 0.2s ease;
-        }
-        .services-list li:hover {
-          color: var(--text);
-          padding-left: 8px;
-          border-bottom-color: var(--accent);
         }
         .services-turnaround {
           font-family: var(--font-mono);

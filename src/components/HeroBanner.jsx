@@ -13,10 +13,7 @@ const CLIPS = [
 
 // Optional: a static poster shown instantly on load (before the first
 // video can play) and permanently for prefers-reduced-motion users.
-// Point this at any still frame from one of the clips, or leave as null.
 const POSTER_SRC = '/videos/hero/modern-house-front.jpg';
-
-const CROSSFADE_MS = 800;
 
 export default function HeroBanner({ children }) {
   const [activeSlot, setActiveSlot] = useState(0); // which <video> element (0 or 1) is on top
@@ -42,28 +39,49 @@ export default function HeroBanner({ children }) {
     const nextIndex = (clipIndex + 1) % CLIPS.length;
     const hiddenVideo = videoRefs[hiddenSlot].current;
     if (hiddenVideo && hiddenVideo.dataset.clip !== CLIPS[nextIndex]) {
+      hiddenVideo.muted = true;
       hiddenVideo.src = CLIPS[nextIndex];
       hiddenVideo.dataset.clip = CLIPS[nextIndex];
       hiddenVideo.load();
     }
   }, [activeSlot, clipIndex, reducedMotion]);
 
+  // Reset and start the incoming video's playback FIRST (synchronously, in
+  // this same event), then flip the state that swaps CSS visibility. This
+  // ordering matters: doing it the other way around (swap first, reset
+  // later in an effect) is what caused the "flicks to a previous frame"
+  // glitch — the browser would paint the incoming video visible for a
+  // moment while it was still sitting at its old paused end-of-clip frame.
   const advance = useCallback(() => {
-    setActiveSlot((s) => (s === 0 ? 1 : 0));
+    setActiveSlot((prevSlot) => {
+      const nextSlot = prevSlot === 0 ? 1 : 0;
+      const incoming = videoRefs[nextSlot].current;
+      if (incoming) {
+        incoming.muted = true;
+        incoming.currentTime = 0;
+        incoming.play().catch(() => {
+          /* autoplay can be blocked in rare cases; the poster stays visible */
+        });
+      }
+      return nextSlot;
+    });
     setClipIndex((i) => (i + 1) % CLIPS.length);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Kick off playback of whichever slot just became active.
+  // Start the very first clip on mount. Set .muted imperatively rather than
+  // relying solely on the JSX attribute — some desktop browsers ignore the
+  // JSX-set muted property's timing and block autoplay-with-sound as a
+  // result, even though the intent was always muted playback.
   useEffect(() => {
     if (reducedMotion) return;
-    const video = videoRefs[activeSlot].current;
-    if (video) {
-      video.currentTime = 0;
-      video.play().catch(() => {
-        /* autoplay can be blocked in rare cases; the poster stays visible */
-      });
+    const first = videoRefs[0].current;
+    if (first) {
+      first.muted = true;
+      first.play().catch(() => {});
     }
-  }, [activeSlot, reducedMotion]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reducedMotion]);
 
   if (reducedMotion) {
     return (
@@ -85,7 +103,6 @@ export default function HeroBanner({ children }) {
           className={`hero__video ${activeSlot === slot ? 'hero__video--visible' : ''}`}
           muted
           playsInline
-          autoPlay={slot === 0}
           onEnded={advance}
           {...(slot === 0 ? { src: CLIPS[0], 'data-clip': CLIPS[0] } : {})}
         />

@@ -1,0 +1,26 @@
+.process-page {
+  min-height: calc(100vh - var(--header-h, 88px));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  padding: 10vh 6vw;
+  text-align: center;
+  color: #f5f4f1;
+  background: #0a0a0a;
+}
+
+.process-page__title {
+  margin: 0;
+  font-size: clamp(1.8rem, 3.6vw, 2.6rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.process-page__options {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+}

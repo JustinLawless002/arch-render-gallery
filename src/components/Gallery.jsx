@@ -19,6 +19,40 @@ export default function Gallery() {
 
   return (
     <div className="gallery">
+      {/*
+        Scoped, high-specificity rules for just the pieces that were causing
+        misalignment (the image box itself). Deliberately not touching
+        .tile-caption/.tile-index/.tile-title here, since those are already
+        styled elsewhere — this only forces every thumbnail into an
+        identical-ratio box instead of rendering at native image size, which
+        is what was breaking row alignment when source images varied in
+        dimensions. Adjust the aspect-ratio value (currently 4 / 3) to match
+        your source photos' typical framing if most are more square or more
+        panoramic.
+      */}
+      <style>{`
+        .gallery {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+          gap: 24px;
+        }
+        .gallery .tile-button {
+          display: block !important;
+          position: relative;
+          width: 100% !important;
+          aspect-ratio: 4 / 3 !important;
+          overflow: hidden;
+        }
+        .gallery .tile-button img {
+          position: absolute;
+          inset: 0;
+          width: 100% !important;
+          height: 100% !important;
+          object-fit: cover !important;
+          display: block;
+        }
+      `}</style>
+
       {works.map((work, i) => (
         <figure className="tile" key={work.id}>
           <Link className="tile-button" to={`/project/${work.slug}`} aria-label={`View ${work.title}`}>
