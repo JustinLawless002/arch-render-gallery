@@ -52,10 +52,12 @@ function Home() {
           </div>
         </HeroBanner>
 
-        <div id="gallery">
+        <MotionSection clips={clips} />
+
+        <div id="gallery" className="gallery-section">
+          <h2 className="gallery-section-title">Projects gallery</h2>
           <Gallery />
         </div>
-        <MotionSection clips={clips} />
         <About />
         <Services />
       </main>
@@ -109,6 +111,20 @@ export default function App() {
            still reaches the true top of the viewport — see HeroBanner.css. */
         .route-content {
           padding-top: var(--header-h);
+        }
+
+        .gallery-section {
+          padding: 64px 48px 32px;
+        }
+        .gallery-section-title {
+          font-family: var(--font-display);
+          font-size: clamp(28px, 4vw, 44px);
+          font-weight: 600;
+          letter-spacing: -0.01em;
+          margin: 0 0 28px;
+        }
+        @media (max-width: 560px) {
+          .gallery-section { padding: 48px 24px 16px; }
         }
       `}</style>
 

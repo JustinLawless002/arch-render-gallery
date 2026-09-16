@@ -30,7 +30,7 @@
 .hero__video {
   z-index: 1;
   opacity: 0;
-  transition: opacity 800ms ease;
+  transition: opacity 1600ms ease;
 }
 
 .hero__video--visible {

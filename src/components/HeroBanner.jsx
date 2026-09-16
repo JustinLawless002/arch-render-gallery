@@ -12,13 +12,23 @@ const CLIPS = [
 ];
 
 // Optional: a static poster shown instantly on load (before the first
-// video can play) and permanently for prefers-reduced-motion users.
+// video can paint a frame) — hidden for good the moment real playback
+// starts, see showPoster below.
 const POSTER_SRC = '/videos/hero/modern-house-front.jpg';
 
 export default function HeroBanner({ children }) {
   const [activeSlot, setActiveSlot] = useState(0); // which <video> element (0 or 1) is on top
   const [clipIndex, setClipIndex] = useState(0); // which clip is currently showing
   const [reducedMotion, setReducedMotion] = useState(false);
+
+  // The poster was staying mounted (and fully opaque) underneath both
+  // videos for the entire session. During a crossfade both videos briefly
+  // dip below full opacity at the same time, and since the poster behind
+  // them never fades, it showed through in that gap — on every transition,
+  // not just the first one. Fix: permanently hide it the moment the first
+  // real frame renders, well before any crossfade can ever happen.
+  const [showPoster, setShowPoster] = useState(true);
+  const hidePoster = useCallback(() => setShowPoster(false), []);
 
   const videoRefs = [useRef(null), useRef(null)];
 
@@ -47,11 +57,8 @@ export default function HeroBanner({ children }) {
   }, [activeSlot, clipIndex, reducedMotion]);
 
   // Reset and start the incoming video's playback FIRST (synchronously, in
-  // this same event), then flip the state that swaps CSS visibility. This
-  // ordering matters: doing it the other way around (swap first, reset
-  // later in an effect) is what caused the "flicks to a previous frame"
-  // glitch — the browser would paint the incoming video visible for a
-  // moment while it was still sitting at its old paused end-of-clip frame.
+  // this same event), then flip the state that swaps CSS visibility — this
+  // ordering is what fixed the earlier "flicks to a stale frame" bug.
   const advance = useCallback(() => {
     setActiveSlot((prevSlot) => {
       const nextSlot = prevSlot === 0 ? 1 : 0;
@@ -59,9 +66,13 @@ export default function HeroBanner({ children }) {
       if (incoming) {
         incoming.muted = true;
         incoming.currentTime = 0;
-        incoming.play().catch(() => {
-          /* autoplay can be blocked in rare cases; the poster stays visible */
-        });
+        const p = incoming.play();
+        if (p && typeof p.catch === 'function') {
+          p.catch((err) => {
+            // eslint-disable-next-line no-console
+            console.error(`Hero video ${incoming.dataset.clip} failed to play on transition:`, err);
+          });
+        }
       }
       return nextSlot;
     });
@@ -69,16 +80,25 @@ export default function HeroBanner({ children }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Start the very first clip on mount. Set .muted imperatively rather than
-  // relying solely on the JSX attribute — some desktop browsers ignore the
-  // JSX-set muted property's timing and block autoplay-with-sound as a
-  // result, even though the intent was always muted playback.
+  // Start the very first clip on mount. .muted is set imperatively (not
+  // just via the JSX attribute) since some browsers check the property's
+  // state at the moment .play() is called rather than at initial markup.
   useEffect(() => {
     if (reducedMotion) return;
     const first = videoRefs[0].current;
     if (first) {
       first.muted = true;
-      first.play().catch(() => {});
+      const p = first.play();
+      if (p && typeof p.catch === 'function') {
+        p.catch((err) => {
+          // If this logs on desktop Chrome, the message here (open
+          // DevTools → Console) tells us exactly why the browser refused
+          // to play — e.g. an autoplay-policy rejection vs. the file
+          // itself failing to decode — rather than us guessing further.
+          // eslint-disable-next-line no-console
+          console.error('Hero video autoplay was blocked or failed:', err);
+        });
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reducedMotion]);
@@ -95,7 +115,9 @@ export default function HeroBanner({ children }) {
 
   return (
     <section className="hero">
-      {POSTER_SRC && <img className="hero__poster" src={POSTER_SRC} alt="" aria-hidden="true" />}
+      {showPoster && POSTER_SRC && (
+        <img className="hero__poster" src={POSTER_SRC} alt="" aria-hidden="true" />
+      )}
       {[0, 1].map((slot) => (
         <video
           key={slot}
@@ -103,6 +125,8 @@ export default function HeroBanner({ children }) {
           className={`hero__video ${activeSlot === slot ? 'hero__video--visible' : ''}`}
           muted
           playsInline
+          preload="auto"
+          onPlaying={hidePoster}
           onEnded={advance}
           {...(slot === 0 ? { src: CLIPS[0], 'data-clip': CLIPS[0] } : {})}
         />
