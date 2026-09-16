@@ -19,7 +19,22 @@ const POSTER_SRC = '/videos/hero/modern-house-front.jpg';
 export default function HeroBanner({ children }) {
   const [activeSlot, setActiveSlot] = useState(0); // which <video> element (0 or 1) is on top
   const [clipIndex, setClipIndex] = useState(0); // which clip is currently showing
-  const [reducedMotion, setReducedMotion] = useState(false);
+  // Read the real value BEFORE the first render (a lazy useState
+  // initializer runs synchronously on mount) rather than defaulting to
+  // false and correcting it a moment later in an effect. That earlier
+  // pattern was the actual cause of the desktop Chrome AbortError: if this
+  // environment does have prefers-reduced-motion set, the component would
+  // render the video branch first, call .play() on it, and THEN re-render
+  // into the poster-only branch once the effect caught up — unmounting the
+  // video element while its play() was still pending, which Chrome reports
+  // as "interrupted by a new load request." Computing it up front means
+  // the correct branch renders from the very first paint, so no
+  // mid-playback unmount can happen.
+  const [reducedMotion, setReducedMotion] = useState(() =>
+    typeof window !== 'undefined'
+      ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      : false
+  );
 
   // The poster was staying mounted (and fully opaque) underneath both
   // videos for the entire session. During a crossfade both videos briefly
@@ -34,7 +49,6 @@ export default function HeroBanner({ children }) {
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setReducedMotion(mq.matches);
     const onChange = (e) => setReducedMotion(e.matches);
     mq.addEventListener('change', onChange);
     return () => mq.removeEventListener('change', onChange);
