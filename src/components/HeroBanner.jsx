@@ -25,6 +25,11 @@ export default function HeroBanner({ children }) {
         loop
         playsInline
         preload="auto"
+        onError={(e) => {
+          const err = e.currentTarget.error;
+          // eslint-disable-next-line no-console
+          console.error('Hero video failed to load/decode:', err && err.message, err);
+        }}
       />
       <div className="hero__scrim" />
       <div className="hero__content">{children}</div>
