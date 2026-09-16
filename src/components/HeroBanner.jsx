@@ -70,24 +70,62 @@ export default function HeroBanner({ children }) {
     }
   }, [activeSlot, clipIndex, reducedMotion]);
 
-  // Reset and start the incoming video's playback FIRST (synchronously, in
-  // this same event), then flip the state that swaps CSS visibility — this
-  // ordering is what fixed the earlier "flicks to a stale frame" bug.
-  const advance = useCallback(() => {
-    setActiveSlot((prevSlot) => {
-      const nextSlot = prevSlot === 0 ? 1 : 0;
-      const incoming = videoRefs[nextSlot].current;
+  // Tracks whether we've already kicked off the next video's warmup
+  // playback for the CURRENT clip, so timeupdate doesn't retrigger it on
+  // every tick once started.
+  const warmupTriggered = useRef(false);
+
+  // THE FIX for the black-flash stall: instead of starting the incoming
+  // video exactly when the outgoing one ends, start it a little earlier —
+  // muted and invisible (opacity 0) — so it has real decoded frames on
+  // screen by the time the crossfade actually reveals it. Starting a video
+  // cold from currentTime 0 at the exact instant it needs to be visible is
+  // what produced the sustained black gap: the outgoing clip goes blank on
+  // 'ended', and the incoming clip needs a beat to decode its first frame,
+  // and both land on "nothing to show" simultaneously.
+  const WARMUP_SECONDS = 0.6;
+  const handleTimeUpdate = useCallback(
+    (e) => {
+      if (warmupTriggered.current) return;
+      const video = e.target;
+      if (!video.duration || Number.isNaN(video.duration)) return;
+      if (video.duration - video.currentTime > WARMUP_SECONDS) return;
+
+      warmupTriggered.current = true;
+      const hiddenSlot = activeSlot === 0 ? 1 : 0;
+      const incoming = videoRefs[hiddenSlot].current;
       if (incoming) {
         incoming.muted = true;
         incoming.currentTime = 0;
-        const p = incoming.play();
-        if (p && typeof p.catch === 'function') {
-          p.catch((err) => {
-            // eslint-disable-next-line no-console
-            console.error(`Hero video ${incoming.dataset.clip} failed to play on transition:`, err);
-          });
+        incoming.play().catch(() => {});
+      }
+    },
+    [activeSlot]
+  );
+
+  // By the time 'ended' fires, the incoming video (started early via
+  // handleTimeUpdate above) already has real frames playing — this just
+  // flips which one is visible. The currentTime/play() fallback below only
+  // matters if warmup never triggered (e.g. duration metadata unavailable),
+  // so the crossfade still works, just without the stall protection.
+  const advance = useCallback(() => {
+    setActiveSlot((prevSlot) => {
+      const nextSlot = prevSlot === 0 ? 1 : 0;
+      if (!warmupTriggered.current) {
+        const incoming = videoRefs[nextSlot].current;
+        if (incoming) {
+          incoming.muted = true;
+          incoming.currentTime = 0;
+          const p = incoming.play();
+          if (p && typeof p.catch === 'function') {
+            p.catch((err) => {
+              // eslint-disable-next-line no-console
+              console.error(`Hero video ${incoming.dataset.clip} failed to play on transition:`, err);
+            });
+          }
         }
       }
+      warmupTriggered.current = false;
       return nextSlot;
     });
     setClipIndex((i) => (i + 1) % CLIPS.length);
@@ -141,6 +179,7 @@ export default function HeroBanner({ children }) {
           playsInline
           preload="auto"
           onPlaying={hidePoster}
+          onTimeUpdate={handleTimeUpdate}
           onEnded={advance}
           {...(slot === 0 ? { src: CLIPS[0], 'data-clip': CLIPS[0] } : {})}
         />
