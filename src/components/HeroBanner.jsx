@@ -1,4 +1,3 @@
-import { useState, useCallback } from 'react';
 import './HeroBanner.css';
 
 // The 4 clips have been combined into a single file with the transitions
@@ -8,10 +7,6 @@ import './HeroBanner.css';
 // One continuously-looping video sidesteps that class of bug entirely.
 const HERO_SRC = '/videos/hero/hero.webm';
 
-// Static poster shown instantly on load, before the video can paint its
-// first frame. Hidden for good the moment real playback starts.
-const POSTER_SRC = '/videos/hero/modern-house-front.jpg';
-
 // NOTE: this deliberately does NOT check prefers-reduced-motion. An
 // earlier version respected it (skipping autoplay for visitors who have
 // that OS/browser accessibility setting on) — removed by explicit
@@ -20,12 +15,8 @@ const POSTER_SRC = '/videos/hero/modern-house-front.jpg';
 // discomfort, not just as a performance preference, so this hero will
 // autoplay for them regardless.
 export default function HeroBanner({ children }) {
-  const [showPoster, setShowPoster] = useState(true);
-  const hidePoster = useCallback(() => setShowPoster(false), []);
-
   return (
     <section className="hero">
-      {showPoster && <img className="hero__poster" src={POSTER_SRC} alt="" aria-hidden="true" />}
       <video
         className="hero__video"
         src={HERO_SRC}
@@ -34,7 +25,6 @@ export default function HeroBanner({ children }) {
         loop
         playsInline
         preload="auto"
-        onPlaying={hidePoster}
       />
       <div className="hero__scrim" />
       <div className="hero__content">{children}</div>
