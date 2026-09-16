@@ -109,6 +109,30 @@
   border-color: #f5f4f1;
 }
 
+/* .contact-btn (global stylesheet) and .hero__cta are equal specificity,
+   so whichever stylesheet happens to load second could still win — this
+   scoped, more-specific selector guarantees the hero's look wins here
+   regardless of that load order. */
+.hero__actions .contact-btn {
+  display: inline-block;
+  padding: 12px 26px;
+  background: transparent;
+  border: 1px solid rgba(245, 244, 241, 0.55);
+  border-radius: 0;
+  color: #f5f4f1;
+  font-family: inherit;
+  font-size: 0.95rem;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: background 200ms ease, color 200ms ease, border-color 200ms ease;
+}
+
+.hero__actions .contact-btn:hover {
+  background: #f5f4f1;
+  color: #0a0a0a;
+  border-color: #f5f4f1;
+}
+
 @media (max-width: 640px) {
   .hero {
     height: 100svh;

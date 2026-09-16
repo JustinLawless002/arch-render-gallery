@@ -54,9 +54,19 @@ export default function HeroBanner({ children }) {
     return () => mq.removeEventListener('change', onChange);
   }, []);
 
-  // Preload the *next* clip into the currently-hidden video element while
-  // the visible one plays, so the crossfade swap never has to wait on a
-  // network fetch.
+  // Preload the *next* clip into the currently-hidden video element, and
+  // PRIME it: briefly play it (muted, invisible — opacity 0 via CSS) until
+  // the browser confirms a real frame has actually rendered, then pause it
+  // right back at the start. This keeps its decoder warmed up for however
+  // long it sits hidden (several seconds, the full remaining length of the
+  // current clip), rather than starting cold exactly at the crossfade
+  // moment — which was the actual cause of the black-flash stall, even
+  // after an earlier attempt to fix it by starting playback ~0.6s early:
+  // that attempt relied on reading the video's `duration` property to know
+  // when "0.6s before the end" was, and some mobile-encoded MP4s don't
+  // report a reliable duration on the element (NaN, or resolves late) —
+  // so that check silently failed and quietly fell back to the same cold
+  // start as before. This approach doesn't depend on duration at all.
   useEffect(() => {
     if (reducedMotion) return;
     const hiddenSlot = activeSlot === 0 ? 1 : 0;
@@ -66,70 +76,42 @@ export default function HeroBanner({ children }) {
       hiddenVideo.muted = true;
       hiddenVideo.src = CLIPS[nextIndex];
       hiddenVideo.dataset.clip = CLIPS[nextIndex];
+
+      const primeOnce = () => {
+        hiddenVideo.removeEventListener('playing', primeOnce);
+        hiddenVideo.pause();
+        hiddenVideo.currentTime = 0;
+      };
+      hiddenVideo.addEventListener('playing', primeOnce);
+
       hiddenVideo.load();
+      hiddenVideo.play().catch(() => {
+        hiddenVideo.removeEventListener('playing', primeOnce);
+      });
     }
   }, [activeSlot, clipIndex, reducedMotion]);
 
-  // Tracks whether we've already kicked off the next video's warmup
-  // playback for the CURRENT clip, so timeupdate doesn't retrigger it on
-  // every tick once started.
-  const warmupTriggered = useRef(false);
-
-  // THE FIX for the black-flash stall: instead of starting the incoming
-  // video exactly when the outgoing one ends, start it a little earlier —
-  // muted and invisible (opacity 0) — so it has real decoded frames on
-  // screen by the time the crossfade actually reveals it. Starting a video
-  // cold from currentTime 0 at the exact instant it needs to be visible is
-  // what produced the sustained black gap: the outgoing clip goes blank on
-  // 'ended', and the incoming clip needs a beat to decode its first frame,
-  // and both land on "nothing to show" simultaneously.
-  const WARMUP_SECONDS = 0.6;
-  const handleTimeUpdate = useCallback(
-    (e) => {
-      if (warmupTriggered.current) return;
-      const video = e.target;
-      if (!video.duration || Number.isNaN(video.duration)) return;
-      if (video.duration - video.currentTime > WARMUP_SECONDS) return;
-
-      warmupTriggered.current = true;
-      const hiddenSlot = activeSlot === 0 ? 1 : 0;
-      const incoming = videoRefs[hiddenSlot].current;
-      if (incoming) {
-        incoming.muted = true;
-        incoming.currentTime = 0;
-        incoming.play().catch(() => {});
-      }
-    },
-    [activeSlot]
-  );
-
-  // By the time 'ended' fires, the incoming video (started early via
-  // handleTimeUpdate above) already has real frames playing — this just
-  // flips which one is visible. The currentTime/play() fallback below only
-  // matters if warmup never triggered (e.g. duration metadata unavailable),
-  // so the crossfade still works, just without the stall protection.
+  // The incoming video was already primed above (played briefly then
+  // paused at the start, as soon as it preloaded) — this just resumes an
+  // already-warmed decoder rather than starting one cold, and flips which
+  // slot is visible.
   const advance = useCallback(() => {
     setActiveSlot((prevSlot) => {
       const nextSlot = prevSlot === 0 ? 1 : 0;
-      if (!warmupTriggered.current) {
-        const incoming = videoRefs[nextSlot].current;
-        if (incoming) {
-          incoming.muted = true;
-          incoming.currentTime = 0;
-          const p = incoming.play();
-          if (p && typeof p.catch === 'function') {
-            p.catch((err) => {
-              // eslint-disable-next-line no-console
-              console.error(`Hero video ${incoming.dataset.clip} failed to play on transition:`, err);
-            });
-          }
+      const incoming = videoRefs[nextSlot].current;
+      if (incoming) {
+        incoming.muted = true;
+        const p = incoming.play();
+        if (p && typeof p.catch === 'function') {
+          p.catch((err) => {
+            // eslint-disable-next-line no-console
+            console.error(`Hero video ${incoming.dataset.clip} failed to play on transition:`, err);
+          });
         }
       }
-      warmupTriggered.current = false;
       return nextSlot;
     });
     setClipIndex((i) => (i + 1) % CLIPS.length);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Start the very first clip on mount. .muted is set imperatively (not
@@ -179,7 +161,6 @@ export default function HeroBanner({ children }) {
           playsInline
           preload="auto"
           onPlaying={hidePoster}
-          onTimeUpdate={handleTimeUpdate}
           onEnded={advance}
           {...(slot === 0 ? { src: CLIPS[0], 'data-clip': CLIPS[0] } : {})}
         />
