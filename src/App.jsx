@@ -74,21 +74,39 @@ export default function App() {
           /* Used by the header (fixed height) and the hero (negative
              margin to sit edge-to-edge underneath it). Keep both in sync
              if you resize the header. */
-          --header-h: 88px;
+          --header-h: 160px;
+          /* Matches .page's own left/right padding formula (from
+             index.css) exactly, rather than a separately-chosen value —
+             so the header and hero align not just with each other but
+             with the same left edge every other section on the site
+             already uses. */
+          --page-gutter: clamp(20px, 4vw, 56px);
         }
 
+        /* index.css's own .site-header rule sets display/align-items/
+           justify-content/padding/border-bottom — overriding only some of
+           those (as an earlier pass here did) leaves the rest still in
+           effect and fighting this. Every property it sets is covered
+           below. */
         .site-header {
-          align-items: center;
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: var(--header-h);
-          z-index: 100;
-          background: rgba(10, 10, 10, 0.5);
-          backdrop-filter: blur(10px);
-          -webkit-backdrop-filter: blur(10px);
+          display: flex !important;
+          align-items: flex-start !important;
+          justify-content: flex-start !important;
+          position: fixed !important;
+          top: 0 !important;
+          left: 0 !important;
+          right: 0 !important;
+          height: var(--header-h) !important;
+          z-index: 100 !important;
+          padding: 40px var(--page-gutter) 0 !important;
+          margin: 0 !important;
+          border-bottom: none !important;
+          background: none !important;
         }
+        .page {
+          background: #0a0a0a;
+        }
+
         .brand {
           display: flex;
           align-items: center;
@@ -97,7 +115,7 @@ export default function App() {
           color: inherit;
         }
         .brand-logo {
-          height: 40px;
+          height: 24px;
           width: auto;
           display: block;
         }
@@ -125,6 +143,12 @@ export default function App() {
         }
         @media (max-width: 560px) {
           .gallery-section { padding: 48px 24px 16px; }
+          :root {
+            --header-h: 130px;
+          }
+          .site-header {
+            padding: 26px var(--page-gutter) 0 !important;
+          }
         }
       `}</style>
 
@@ -135,9 +159,6 @@ export default function App() {
           <img src={logoIcon} alt="Prime Design logo" className="brand-logo" />
           <div className="brand-text">
             <h1 className="site-title">Prime Design</h1>
-            <span className="site-sub">
-              Architectural design, visualization &amp; AI-assisted rendering
-            </span>
           </div>
         </Link>
       </header>

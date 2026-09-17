@@ -1,16 +1,24 @@
 .hero {
   position: relative;
-  width: 100%;
+  /* Breaks out of .page's padding + centered max-width (1600px) so the
+     hero genuinely spans the full viewport instead of sitting inset
+     inside .page's container. Standard full-bleed technique: 100vw minus
+     the difference between the viewport and this element's own normal
+     position covers exactly the gap .page's padding/centering would
+     otherwise leave on each side. */
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  margin-right: calc(-50vw + 50%);
   height: 100vh;
   min-height: 560px;
   overflow: hidden;
   background: #0a0a0a; /* shows briefly before the poster/video paints */
 
-  /* The header is now a fixed, translucent bar (see App.jsx). Everything
-     that isn't the hero gets pushed down by --header-h via .route-content
+  /* The header is a fixed, transparent bar (see App.jsx). Everything that
+     isn't the hero gets pushed down by --header-h via .route-content
      padding-top; the hero pulls itself back up by the same amount so it
      still starts at the true top of the viewport, edge to edge, with the
-     header floating transparently on top of it. */
+     header floating on top of it. */
   margin-top: calc(-1 * var(--header-h, 88px));
 }
 
@@ -55,9 +63,8 @@
   justify-content: flex-end;
   align-items: flex-start;
   gap: 18px;
-  padding: 0 6vw 9vh;
+  padding: 0 var(--page-gutter, 6vw) 9vh;
   color: #f5f4f1;
-  max-width: 640px;
 }
 
 .hero__headline {
@@ -66,6 +73,7 @@
   line-height: 1.08;
   font-weight: 600;
   letter-spacing: -0.01em;
+  max-width: 640px;
 }
 
 .hero__subtext {
@@ -133,7 +141,10 @@
   }
 
   .hero__content {
-    padding: 0 6vw 7vh;
+    padding: 0 var(--page-gutter, 6vw) 7vh;
+  }
+
+  .hero__headline {
     max-width: none;
   }
 }

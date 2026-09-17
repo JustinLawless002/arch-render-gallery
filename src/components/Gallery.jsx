@@ -33,8 +33,11 @@ export default function Gallery() {
       <style>{`
         .gallery {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(560px, 1fr));
-          gap: 24px;
+          grid-template-columns: repeat(auto-fill, minmax(min(680px, 100%), 1fr));
+          gap: 0;
+        }
+        .gallery .tile {
+          margin: 0 !important;
         }
         .gallery .tile-button {
           display: block !important;
