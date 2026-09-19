@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
-export default function ContactButton({ className = '' }) {
+export default function ContactButton({ className = '', label = 'Contact' }) {
   const [open, setOpen] = useState(false);
   const wrapRef = useRef(null);
 
@@ -59,7 +59,7 @@ export default function ContactButton({ className = '' }) {
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
       >
-        Contact
+        {label}
       </button>
 
       {open && (

@@ -1,26 +1,26 @@
+import { useNavigate } from 'react-router-dom';
+import workflows from '../data/workflows.js';
 import './ProcessPage.css';
 
-// Placeholder for the side-scrolling workflow pipeline. Each button below
-// is meant to eventually kick off a horizontal node/step flow specific to
-// that starting point (plans / reference images / a bare idea) — for now
-// they're just inert buttons until that flow is designed.
-const STARTING_POINTS = ['With architectural plans', 'With reference images', 'With an idea'];
-
 export default function ProcessPage() {
+  const navigate = useNavigate();
+
+  const handleSelect = (slug) => {
+    navigate(`/process/${slug}`);
+  };
+
   return (
     <main className="process-page">
       <h1 className="process-page__title">How would you like to start?</h1>
       <div className="process-page__options">
-        {STARTING_POINTS.map((label) => (
+        {workflows.map((w) => (
           <button
-            key={label}
+            key={w.slug}
             type="button"
             className="hero__cta"
-            onClick={() => {
-              // TODO: route into the corresponding pipeline node/step flow.
-            }}
+            onClick={() => handleSelect(w.slug)}
           >
-            {label}
+            {w.buttonLabel}
           </button>
         ))}
       </div>

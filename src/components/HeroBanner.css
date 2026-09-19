@@ -125,6 +125,7 @@
   font-family: inherit;
   font-size: 0.95rem;
   letter-spacing: 0.01em;
+  text-transform: none;
   cursor: pointer;
   transition: background 200ms ease, color 200ms ease, border-color 200ms ease;
 }

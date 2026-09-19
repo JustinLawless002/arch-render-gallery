@@ -1,0 +1,205 @@
+@keyframes workflow-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.workflow-page {
+  min-height: 100vh;
+  background: #0a0a0a;
+  color: #f5f4f1;
+  padding: 4px 0 100px;
+
+  /* Starts fully below the viewport and rises into place — a plain
+     opacity/small-nudge fade was nearly invisible here since the page's
+     own background is already near-black, same as what's behind it.
+     Runs automatically on mount (no JS/class-toggle needed).
+
+     !important is required here specifically: index.css has a global
+     `@media (prefers-reduced-motion: reduce) { *, *::before, *::after {
+     animation-duration: 0.01ms !important; } }` rule, which otherwise
+     overrides this to run in 0.01ms (i.e. invisibly) for anyone with that
+     OS/browser accessibility setting on — which is what was happening on
+     desktop here. This is a deliberate choice to always play this
+     transition regardless of that setting. */
+  animation: workflow-slide-up 650ms cubic-bezier(0.16, 1, 0.3, 1) both !important;
+}
+
+.workflow-page__header {
+  padding: 0 6vw;
+  margin-bottom: 20px;
+}
+
+.workflow-page__back {
+  display: inline-block;
+  color: rgba(245, 244, 241, 0.6);
+  text-decoration: none;
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+  transition: color 160ms ease;
+}
+
+.workflow-page__back:hover {
+  color: #f5f4f1;
+}
+
+.workflow-page__title {
+  margin: 0;
+  font-size: clamp(1.8rem, 3.4vw, 2.6rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.workflow-page__missing {
+  padding: 100px 6vw;
+  text-align: center;
+}
+
+/* ---------- Vertical timeline ---------- */
+
+.workflow-timeline {
+  padding: 0 6vw;
+}
+
+.workflow-step {
+  display: grid;
+  grid-template-columns: 1fr 40px 1fr;
+  column-gap: 24px;
+  align-items: start;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.workflow-step__content {
+  max-width: 380px;
+}
+
+.workflow-step--right .workflow-step__content {
+  grid-column: 3;
+  text-align: left;
+}
+.workflow-step--right .workflow-step__points {
+  text-align: left;
+  padding-left: 18px;
+  padding-right: 0;
+}
+.workflow-step--right .workflow-step__spacer {
+  grid-column: 1;
+}
+.workflow-step--left .workflow-step__content {
+  grid-column: 1;
+  justify-self: end;
+  text-align: left;
+}
+.workflow-step--left .workflow-step__spacer {
+  grid-column: 3;
+}
+
+/* No card/frame — plain text, just spacing */
+.workflow-step__index {
+  display: block;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  color: rgba(245, 244, 241, 0.45);
+  margin-bottom: 8px;
+}
+
+.workflow-step__title {
+  margin: 0 0 12px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.workflow-step__points {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: rgba(245, 244, 241, 0.75);
+}
+
+/* ---------- Connectors ---------- */
+
+.workflow-connector {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+}
+
+.workflow-connector__arrow {
+  width: 24px;
+  height: 40px;
+  color: rgba(245, 244, 241, 0.35);
+}
+
+/* ---------- Image breaks ---------- */
+
+.workflow-image {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.workflow-image img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 688 / 384;
+  object-fit: cover;
+}
+
+/* ---------- End / contact ---------- */
+
+.workflow-end {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 18px;
+  padding-top: 8px;
+}
+
+.workflow-end__title {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+@media (max-width: 720px) {
+  .workflow-step {
+    grid-template-columns: 32px 1fr;
+    column-gap: 16px;
+    max-width: 100%;
+  }
+  .workflow-step--right .workflow-step__content,
+  .workflow-step--left .workflow-step__content {
+    grid-column: 2;
+    max-width: none;
+    justify-self: start;
+    text-align: left;
+  }
+  .workflow-step--left .workflow-step__points {
+    text-align: left;
+    padding-left: 18px;
+    padding-right: 0;
+  }
+  .workflow-step--right .workflow-step__spacer,
+  .workflow-step--left .workflow-step__spacer {
+    display: none;
+  }
+  .workflow-connector {
+    justify-content: flex-start;
+    padding-left: 6vw;
+  }
+}

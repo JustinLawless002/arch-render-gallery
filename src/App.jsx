@@ -9,6 +9,7 @@ import SiteFooter from './components/SiteFooter.jsx';
 import ProjectDetail from './components/ProjectDetail.jsx';
 import HeroBanner from './components/HeroBanner.jsx';
 import ProcessPage from './components/ProcessPage.jsx';
+import WorkflowPage from './components/WorkflowPage.jsx';
 import logoIcon from './assets/logo-icon.png';
 import clips from './data/clips.js';
 
@@ -70,6 +71,19 @@ export default function App() {
   return (
     <div className="page">
       <style>{`
+        /* Self-hosted — Kimberley Black isn't on Google Fonts, so these
+           files need to live in your repo. See the note below the code
+           for exactly where. Applied only to .site-title (the header
+           "Prime Design" text), nowhere else on the site. */
+        @font-face {
+          font-family: 'Kimberley Black';
+          src: url('/fonts/Kimberley-Black.woff2') format('woff2'),
+               url('/fonts/Kimberley-Black.woff') format('woff');
+          font-weight: normal;
+          font-style: normal;
+          font-display: swap;
+        }
+
         :root {
           /* Used by the header (fixed height) and the hero (negative
              margin to sit edge-to-edge underneath it). Keep both in sync
@@ -115,9 +129,13 @@ export default function App() {
           color: inherit;
         }
         .brand-logo {
-          height: 24px;
+          height: 29px;
           width: auto;
           display: block;
+        }
+        .site-title {
+          font-family: 'Kimberley Black', var(--font-display), system-ui, sans-serif;
+          text-transform: lowercase;
         }
         .brand-text {
           display: flex;
@@ -168,6 +186,7 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/project/:slug" element={<ProjectDetail />} />
           <Route path="/process" element={<ProcessPage />} />
+          <Route path="/process/:slug" element={<WorkflowPage />} />
         </Routes>
       </div>
     </div>

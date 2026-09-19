@@ -24,3 +24,14 @@
   justify-content: center;
   gap: 16px;
 }
+
+.process-page__options .hero__cta {
+  width: 240px;
+  min-height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  white-space: normal;
+  line-height: 1.3;
+}
