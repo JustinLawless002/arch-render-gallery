@@ -1,5 +1,6 @@
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Routes, Route, useLocation, Link } from 'react-router-dom';
+import { motion, useScroll, useMotionValueEvent } from 'motion/react';
 import Gallery from './components/Gallery.jsx';
 import ContactButton from './components/ContactButton.jsx';
 import MotionSection from './components/MotionSection.jsx';
@@ -23,6 +24,51 @@ function ScrollToTop() {
     window.scrollTo(0, 0);
   }, [pathname]);
   return null;
+}
+
+// Slides out of view while the visitor scrolls down and back in as soon as
+// they scroll up (or reach the top of the page), so it never sits on top of
+// the renders. Needs ~24px of consistent movement in one direction before it
+// reacts, so a jittery trackpad doesn't make it flicker. Also reappears when
+// something inside it receives keyboard focus.
+function HidingHeader() {
+  const { scrollY } = useScroll();
+  const [hidden, setHidden] = useState(false);
+  const lastY = useRef(0);
+  const travel = useRef(0);
+
+  useMotionValueEvent(scrollY, 'change', (y) => {
+    const delta = y - lastY.current;
+    lastY.current = y;
+
+    if (y < 120) {
+      travel.current = 0;
+      setHidden(false);
+      return;
+    }
+    // Direction changed → start counting again from zero.
+    if (Math.sign(delta) !== Math.sign(travel.current)) travel.current = 0;
+    travel.current += delta;
+
+    if (travel.current > 24) setHidden(true);
+    else if (travel.current < -24) setHidden(false);
+  });
+
+  return (
+    <motion.header
+      className="site-header"
+      animate={{ y: hidden ? '-100%' : '0%' }}
+      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+      onFocus={() => setHidden(false)}
+    >
+      <Link to="/" className="brand">
+        <img src={logoIcon} alt="Prime Design logo" className="brand-logo" />
+        <div className="brand-text">
+          <h1 className="site-title">Prime Design</h1>
+        </div>
+      </Link>
+    </motion.header>
+  );
 }
 
 function Home() {
@@ -172,14 +218,7 @@ export default function App() {
 
       <ScrollToTop />
 
-      <header className="site-header">
-        <Link to="/" className="brand">
-          <img src={logoIcon} alt="Prime Design logo" className="brand-logo" />
-          <div className="brand-text">
-            <h1 className="site-title">Prime Design</h1>
-          </div>
-        </Link>
-      </header>
+      <HidingHeader />
 
       <div className="route-content">
         <Routes>

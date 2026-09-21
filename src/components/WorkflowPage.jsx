@@ -1,6 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 import workflows from '../data/workflows.js';
 import ContactButton from './ContactButton.jsx';
+import RevealLines from './RevealLines.jsx';
 import './WorkflowPage.css';
 
 function DownArrow() {
@@ -58,7 +59,14 @@ export default function WorkflowPage() {
         <Link to="/process" className="workflow-page__back">
           ← Back
         </Link>
-        <h1 className="workflow-page__title">{workflow.title}</h1>
+        {/* delay: the whole page also slides up on arrival (see
+            WorkflowPage.css), so the title waits for that to settle. */}
+        <RevealLines
+          as="h1"
+          className="workflow-page__title"
+          text={workflow.title}
+          delay={0.45}
+        />
       </div>
 
       <div className="workflow-timeline">
@@ -72,10 +80,20 @@ export default function WorkflowPage() {
                       flowItems.slice(0, i + 1).filter((x) => x.type === 'step').length
                     ).padStart(2, '0')}
                   </span>
-                  <h2 className="workflow-step__title">{item.step.title}</h2>
+                  <RevealLines
+                    as="h2"
+                    className="workflow-step__title"
+                    text={item.step.title}
+                  />
                   <ul className="workflow-step__points">
-                    {item.step.points.map((point) => (
-                      <li key={point}>{point}</li>
+                    {item.step.points.map((point, pi) => (
+                      <RevealLines
+                        as="li"
+                        key={point}
+                        text={point}
+                        delay={0.18 + pi * 0.14}
+                        stagger={0.07}
+                      />
                     ))}
                   </ul>
                 </div>
@@ -91,7 +109,7 @@ export default function WorkflowPage() {
         ))}
 
         <div className="workflow-end">
-          <h2 className="workflow-end__title">Ready to start?</h2>
+          <RevealLines as="h2" className="workflow-end__title" text="Ready to start?" />
           <ContactButton className="hero__cta" label="Contact for a meeting and quote" />
         </div>
       </div>

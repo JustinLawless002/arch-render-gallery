@@ -1,0 +1,34 @@
+/* Each rendered line of text sits in its own clipping "mask"; the line
+   inside slides up from below the mask's bottom edge. The small padding /
+   negative margin pair stops descenders and accents being clipped without
+   changing the text's layout. */
+.reveal-mask {
+  display: block;
+  overflow: hidden;
+  padding: 0.08em 0 0.16em;
+  margin: -0.08em 0 -0.16em;
+}
+
+.reveal-line {
+  display: block;
+  will-change: transform;
+}
+
+/* Real text for screen readers / copy-paste while the lines are split. */
+.reveal-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* For list items: keep the bullet hidden until its text is on its way in,
+   so a bullet never sits there alone. */
+[data-reveal='out']::marker {
+  color: transparent;
+}

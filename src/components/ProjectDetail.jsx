@@ -1,8 +1,12 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { animate, motion } from 'motion/react';
 import { buildWorks } from '../data/works.js';
 import { getClipForSlug } from '../data/clips.js';
+import { peekHeroTransition, clearHeroTransition } from '../lib/heroTransition.js';
 import ClipOverlay from './ClipOverlay.jsx';
+
+const EASE = [0.16, 1, 0.3, 1];
 
 export default function ProjectDetail() {
   const { slug } = useParams();
@@ -10,6 +14,58 @@ export default function ProjectDetail() {
   const work = works.find((w) => w.slug === slug);
   const clip = work ? getClipForSlug(work.slug) : null;
   const [expanded, setExpanded] = useState(false);
+  const phoneVideoRef = useRef(null);
+
+  // ---- Thumbnail → hero transition -------------------------------------
+  // If the visitor arrived by clicking a gallery tile, a "ghost" copy of the
+  // thumbnail starts exactly where that tile was on screen and glides into
+  // the hero's place, then hands over to the real (full-size) image. A
+  // direct visit / refresh / back-button arrival has no hand-off data, so it
+  // simply shows the page normally.
+  const transition = useMemo(() => peekHeroTransition(slug), [slug]);
+  const useGhost = Boolean(transition && work);
+  const [ghost, setGhost] = useState(null); // { from, src }
+  const [ghostArrived, setGhostArrived] = useState(!useGhost);
+  const [heroLoaded, setHeroLoaded] = useState(false);
+  const heroRef = useRef(null);
+  const heroImgRef = useRef(null);
+  const ghostRef = useRef(null);
+  const started = useRef(null);
+
+  useLayoutEffect(() => {
+    if (!useGhost || started.current === slug) return;
+    started.current = slug;
+    // ScrollToTop (App.jsx) also does this, but it runs after this effect;
+    // the hero must be measured at its final, scrolled-to-top position.
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    setGhost({ from: transition.rect, src: transition.src });
+  }, [useGhost, slug, transition]);
+
+  useEffect(() => {
+    if (!ghost || !ghostRef.current || !heroRef.current) return;
+    const to = heroRef.current.getBoundingClientRect();
+    const controls = animate(
+      ghostRef.current,
+      { top: to.top, left: to.left, width: to.width, height: to.height },
+      { duration: 0.75, ease: EASE }
+    );
+    controls.then(() => setGhostArrived(true)).catch(() => {});
+    return () => controls.stop();
+  }, [ghost]);
+
+  // The ghost is only removed once the real image has actually loaded, so
+  // there is never a blank frame between the two.
+  useEffect(() => {
+    const img = heroImgRef.current;
+    if (img && img.complete && img.naturalWidth > 0) setHeroLoaded(true);
+  }, [work]);
+
+  useEffect(() => {
+    if (ghost && ghostArrived && heroLoaded) {
+      setGhost(null);
+      clearHeroTransition();
+    }
+  }, [ghost, ghostArrived, heroLoaded]);
 
   return (
     <div className="project-detail">
@@ -31,12 +87,33 @@ export default function ProjectDetail() {
         .back-link:hover {
           color: var(--accent);
         }
+        .project-detail-hero {
+          width: 100%;
+          max-height: 78vh;
+        }
         .project-detail-image {
           width: 100%;
+          height: 100%;
           max-height: 78vh;
           object-fit: cover;
           border: 1px solid var(--line);
           display: block;
+        }
+        /* Known proportions: the wrapper holds the box, the image fills it. */
+        .project-detail-hero--ratio {
+          position: relative;
+        }
+        .project-detail-hero--ratio .project-detail-image {
+          position: absolute;
+          inset: 0;
+        }
+        .project-detail-ghost {
+          border: 1px solid var(--line);
+          position: fixed;
+          z-index: 500;
+          object-fit: cover;
+          pointer-events: none;
+          margin: 0;
         }
         .project-detail-body {
           max-width: 900px;
@@ -180,8 +257,48 @@ export default function ProjectDetail() {
         <p>Project not found.</p>
       ) : (
         <>
-          <img src={work.full} alt={work.title} className="project-detail-image" />
-          <div className="project-detail-body">
+          <div
+            ref={heroRef}
+            className={`project-detail-hero${transition?.ar ? ' project-detail-hero--ratio' : ''}`}
+            style={{
+              // When we know the image's proportions (arrived via a tile
+              // click) reserve the exact box up front, so the ghost knows
+              // where to land before the full image has downloaded.
+              aspectRatio: transition?.ar || undefined,
+              opacity: ghostArrived ? 1 : 0,
+            }}
+          >
+            <img
+              ref={heroImgRef}
+              src={work.full}
+              alt={work.title}
+              className="project-detail-image"
+              onLoad={() => setHeroLoaded(true)}
+            />
+          </div>
+
+          {ghost && (
+            <img
+              ref={ghostRef}
+              src={ghost.src}
+              alt=""
+              aria-hidden="true"
+              className="project-detail-ghost"
+              style={{
+                top: ghost.from.top,
+                left: ghost.from.left,
+                width: ghost.from.width,
+                height: ghost.from.height,
+              }}
+            />
+          )}
+
+          <motion.div
+            className="project-detail-body"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.65, ease: EASE, delay: useGhost ? 0.4 : 0.05 }}
+          >
             <h1 className="project-detail-title">{work.title}</h1>
 
             <div className={`project-detail-content${clip ? ' with-motion' : ''}`}>
@@ -194,6 +311,7 @@ export default function ProjectDetail() {
                   >
                     <div className="project-detail-phone-notch" />
                     <video
+                      ref={phoneVideoRef}
                       className="project-detail-phone-video"
                       src={clip.src}
                       poster={clip.poster}
@@ -241,10 +359,14 @@ export default function ProjectDetail() {
                 )}
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {clip && expanded && (
-            <ClipOverlay clip={clip} onClose={() => setExpanded(false)} />
+            <ClipOverlay
+              clip={clip}
+              originEl={phoneVideoRef.current}
+              onClose={() => setExpanded(false)}
+            />
           )}
         </>
       )}

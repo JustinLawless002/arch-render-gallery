@@ -1,6 +1,28 @@
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'motion/react';
 import { buildWorks } from '../data/works.js';
+import { stashHeroTransition } from '../lib/heroTransition.js';
+
+// Remembers where the clicked thumbnail is on screen so the project page can
+// grow its hero image out of that exact spot (see ProjectDetail.jsx). Also
+// starts downloading the full-size image now, so it is usually ready by the
+// time the transition lands.
+function handleTileClick(e, work) {
+  if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return; // new-tab clicks
+  const frame = e.currentTarget;
+  const img = frame.querySelector('img');
+  if (!img) return;
+  const r = frame.getBoundingClientRect();
+  stashHeroTransition({
+    slug: work.slug,
+    rect: { top: r.top, left: r.left, width: r.width, height: r.height },
+    src: img.currentSrc || img.src,
+    ar: img.naturalWidth && img.naturalHeight ? img.naturalWidth / img.naturalHeight : null,
+  });
+  const pre = new Image();
+  pre.src = work.full;
+}
 
 export default function Gallery() {
   const works = useMemo(buildWorks, []);
@@ -57,15 +79,29 @@ export default function Gallery() {
       `}</style>
 
       {works.map((work, i) => (
-        <figure className="tile" key={work.id}>
-          <Link className="tile-button" to={`/project/${work.slug}`} aria-label={`View ${work.title}`}>
+        <motion.figure
+          className="tile"
+          key={work.id}
+          initial={{ opacity: 0, y: 28 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '0px 0px -6% 0px' }}
+          // (i % 3) staggers tiles that arrive on screen together (one row)
+          // without making tiles further down the page wait their turn.
+          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: (i % 3) * 0.09 }}
+        >
+          <Link
+            className="tile-button"
+            to={`/project/${work.slug}`}
+            aria-label={`View ${work.title}`}
+            onClick={(e) => handleTileClick(e, work)}
+          >
             <img src={work.thumb} alt={work.title} loading="lazy" />
           </Link>
           <figcaption className="tile-caption">
             <span className="tile-index">A-{String(i + 1).padStart(2, '0')}</span>
             <span className="tile-title">{work.title}</span>
           </figcaption>
-        </figure>
+        </motion.figure>
       ))}
     </div>
   );

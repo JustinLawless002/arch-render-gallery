@@ -69,7 +69,7 @@ function ClipCard({ clip, index, onExpand }) {
     >
       <div className="clip-index">M-{String(index + 1).padStart(2, "0")}</div>
 
-      <div className="phone-frame" onClick={() => onExpand(clip)}>
+      <div className="phone-frame" onClick={() => onExpand(clip, videoRef.current)}>
         <div className="phone-notch" />
         <video
           ref={videoRef}
@@ -98,7 +98,9 @@ function ClipCard({ clip, index, onExpand }) {
 }
 
 export default function MotionSection({ clips = [] }) {
-  const [expandedClip, setExpandedClip] = useState(null);
+  // { clip, el } — `el` is the clicked card's <video>, which the overlay
+  // grows out of and shrinks back into.
+  const [expanded, setExpanded] = useState(null);
 
   return (
     <section className="motion-section" aria-label="Motion work">
@@ -241,12 +243,16 @@ export default function MotionSection({ clips = [] }) {
 
       <div className="clip-grid">
         {clips.map((clip, i) => (
-          <ClipCard key={clip.id ?? i} clip={clip} index={i} onExpand={setExpandedClip} />
+          <ClipCard key={clip.id ?? i} clip={clip} index={i} onExpand={(c, el) => setExpanded({ clip: c, el })} />
         ))}
       </div>
 
-      {expandedClip && (
-        <ClipOverlay clip={expandedClip} onClose={() => setExpandedClip(null)} />
+      {expanded && (
+        <ClipOverlay
+          clip={expanded.clip}
+          originEl={expanded.el}
+          onClose={() => setExpanded(null)}
+        />
       )}
     </section>
   );
