@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Routes, Route, useLocation, Link } from 'react-router-dom';
 import { motion, useScroll, useMotionValueEvent } from 'motion/react';
+import { Analytics } from '@vercel/analytics/react';
 import Gallery from './components/Gallery.jsx';
 import ContactButton from './components/ContactButton.jsx';
 import MotionSection from './components/MotionSection.jsx';
@@ -228,6 +229,7 @@ export default function App() {
           <Route path="/process/:slug" element={<WorkflowPage />} />
         </Routes>
       </div>
+      <Analytics />
     </div>
   );
 }
