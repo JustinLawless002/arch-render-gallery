@@ -55,8 +55,14 @@ export default function Gallery() {
       <style>{`
         .gallery {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(min(680px, 100%), 1fr));
+          grid-template-columns: repeat(3, 1fr);
           gap: 0;
+        }
+        @media (max-width: 900px) {
+          .gallery { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 560px) {
+          .gallery { grid-template-columns: 1fr; }
         }
         .gallery .tile {
           margin: 0 !important;
@@ -95,10 +101,9 @@ export default function Gallery() {
             aria-label={`View ${work.title}`}
             onClick={(e) => handleTileClick(e, work)}
           >
-            <img src={work.thumb} alt={work.title} loading="lazy" />
+            <img src={work.full} alt={work.title} loading="lazy" />
           </Link>
           <figcaption className="tile-caption">
-            <span className="tile-index">A-{String(i + 1).padStart(2, '0')}</span>
             <span className="tile-title">{work.title}</span>
           </figcaption>
         </motion.figure>

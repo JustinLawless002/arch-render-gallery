@@ -44,7 +44,7 @@ export default function WorkflowPage() {
     return (
       <main className="workflow-page">
         <p className="workflow-page__missing">That workflow doesn't exist.</p>
-        <Link to="/process" className="hero__cta">
+        <Link to="/#process" className="hero__cta">
           Back to process
         </Link>
       </main>
@@ -56,7 +56,7 @@ export default function WorkflowPage() {
   return (
     <main className="workflow-page">
       <div className="workflow-page__header">
-        <Link to="/process" className="workflow-page__back">
+        <Link to="/#process" className="workflow-page__back">
           ← Back
         </Link>
         {/* delay: the whole page also slides up on arrival (see

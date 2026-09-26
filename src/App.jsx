@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Routes, Route, useLocation, Link } from 'react-router-dom';
 import { motion, useScroll, useMotionValueEvent } from 'motion/react';
 import Gallery from './components/Gallery.jsx';
+import RevealLines from './components/RevealLines.jsx';
 import ContactButton from './components/ContactButton.jsx';
 import MotionSection from './components/MotionSection.jsx';
 import About from './components/About.jsx';
@@ -9,20 +10,44 @@ import Services from './components/Services.jsx';
 import SiteFooter from './components/SiteFooter.jsx';
 import ProjectDetail from './components/ProjectDetail.jsx';
 import HeroBanner from './components/HeroBanner.jsx';
-import ProcessPage from './components/ProcessPage.jsx';
 import WorkflowPage from './components/WorkflowPage.jsx';
-import logoIcon from './assets/logo-icon.png';
+import ProcessSection from './components/ProcessSection.jsx';
+import BrandCarousel from './components/BrandCarousel.jsx';
 import clips from './data/clips.js';
+
+// Wrapped once at module scope (not inside a component) so it's a stable
+// component reference across renders — creating it fresh on every render
+// would give React a new component type each time and force a remount.
+const MotionLink = motion(Link);
 
 // React Router doesn't reset scroll position on navigation by default —
 // without this, clicking a gallery thumbnail while scrolled halfway down
 // the homepage lands the project page at that same pixel offset instead
-// of at the top.
+// of at the top. It also now handles hash links (e.g. "/#motion"): since
+// the header's section links are visible on every page, not just Home,
+// clicking one from a project or workflow page has to navigate to Home
+// AND land on the right section, not just reset to the top.
 function ScrollToTop() {
-  const { pathname } = useLocation();
+  const location = useLocation();
   useEffect(() => {
+    if (location.hash) {
+      const id = location.hash.slice(1);
+      // Two rAFs: the first lets React commit the new route's DOM, the
+      // second lets layout settle before measuring where the target is —
+      // a single rAF right after a route swap isn't always enough.
+      let raf2;
+      const raf1 = requestAnimationFrame(() => {
+        raf2 = requestAnimationFrame(() => {
+          document.getElementById(id)?.scrollIntoView({ behavior: 'auto', block: 'start' });
+        });
+      });
+      return () => {
+        cancelAnimationFrame(raf1);
+        if (raf2) cancelAnimationFrame(raf2);
+      };
+    }
     window.scrollTo(0, 0);
-  }, [pathname]);
+  }, [location.pathname, location.hash]);
   return null;
 }
 
@@ -61,12 +86,56 @@ function HidingHeader() {
       transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
       onFocus={() => setHidden(false)}
     >
-      <Link to="/" className="brand">
-        <img src={logoIcon} alt="Prime Design logo" className="brand-logo" />
+      {/* The whole logo+wordmark lockup drops in from above the viewport
+          together as one unit on load, rather than each piece animating
+          separately — a single clear entrance instead of several small
+          competing ones. */}
+      <MotionLink
+        to="/"
+        className="brand"
+        initial={{ opacity: 0, y: -48 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <svg
+          className="brand-logo"
+          viewBox="0 0 40 40"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <rect x="3" y="3" width="34" height="34" rx="9" fill="none" stroke="currentColor" strokeWidth="2.6" />
+          <text
+            x="20"
+            y="21.5"
+            textAnchor="middle"
+            dominantBaseline="central"
+            fontFamily="'Sora', var(--font-display), system-ui, sans-serif"
+            fontWeight="600"
+            fontSize="19"
+            fill="currentColor"
+          >
+            P
+          </text>
+        </svg>
         <div className="brand-text">
-          <h1 className="site-title">Prime Design</h1>
+          <h1 className="site-title">praxio</h1>
         </div>
-      </Link>
+      </MotionLink>
+
+      <motion.nav
+        className="nav-actions"
+        aria-label="Section links"
+        initial={{ opacity: 0, y: -24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
+      >
+        <Link to="/#gallery" className="nav-cta">Portfolio</Link>
+        <Link to="/#motion" className="nav-cta">Motion</Link>
+        <Link to="/#about" className="nav-cta">About</Link>
+        <Link to="/#services" className="nav-cta">Services</Link>
+        <Link to="/#process" className="nav-cta">Process</Link>
+        <ContactButton className="nav-cta" />
+      </motion.nav>
     </motion.header>
   );
 }
@@ -76,35 +145,24 @@ function Home() {
     <>
       <main>
         <HeroBanner>
-          <h2 className="hero__headline">Bringing architectural vision to life</h2>
-          <p className="hero__subtext">
-            Concept renders, animations, and technical drawings — refined
-            through AI-assisted workflows.
-          </p>
-          <div className="hero__actions">
-            <a href="#gallery" className="hero__cta">
-              View portfolio
-            </a>
-            <Link to="/process" className="hero__cta">
-              The process
-            </Link>
-            {/*
-              ContactButton renders its own rollout panel (emails + WhatsApp).
-              It isn't guaranteed to pick up hero__cta's look unless it
-              forwards a className prop down to its root button — check its
-              source and adjust if the styling doesn't match View
-              portfolio/The process once this is live.
-            */}
-            <ContactButton className="hero__cta" />
-          </div>
+          <RevealLines as="h2" className="hero__headline" text="Bringing architectural vision to life" delay={0.15} />
+          <RevealLines
+            as="p"
+            className="hero__subtext"
+            text="Concept renders, animations, and technical drawings — refined through AI-assisted workflows."
+            delay={0.4}
+            stagger={0.06}
+          />
         </HeroBanner>
 
         <MotionSection clips={clips} />
 
         <div id="gallery" className="gallery-section">
-          <h2 className="gallery-section-title">Projects gallery</h2>
+          <RevealLines as="h2" className="gallery-section-title" text="Projects gallery" />
+          <BrandCarousel />
           <Gallery />
         </div>
+        <ProcessSection />
         <About />
         <Services />
       </main>
@@ -117,24 +175,11 @@ export default function App() {
   return (
     <div className="page">
       <style>{`
-        /* Self-hosted — Kimberley Black isn't on Google Fonts, so these
-           files need to live in your repo. See the note below the code
-           for exactly where. Applied only to .site-title (the header
-           "Prime Design" text), nowhere else on the site. */
-        @font-face {
-          font-family: 'Kimberley Black';
-          src: url('/fonts/Kimberley-Black.woff2') format('woff2'),
-               url('/fonts/Kimberley-Black.woff') format('woff');
-          font-weight: normal;
-          font-style: normal;
-          font-display: swap;
-        }
-
         :root {
           /* Used by the header (fixed height) and the hero (negative
              margin to sit edge-to-edge underneath it). Keep both in sync
              if you resize the header. */
-          --header-h: 160px;
+          --header-h: 76px;
           /* Matches .page's own left/right padding formula (from
              index.css) exactly, rather than a separately-chosen value —
              so the header and hero align not just with each other but
@@ -150,18 +195,19 @@ export default function App() {
            below. */
         .site-header {
           display: flex !important;
-          align-items: flex-start !important;
-          justify-content: flex-start !important;
+          align-items: center !important;
+          justify-content: space-between !important;
           position: fixed !important;
           top: 0 !important;
           left: 0 !important;
           right: 0 !important;
           height: var(--header-h) !important;
           z-index: 100 !important;
-          padding: 40px var(--page-gutter) 0 !important;
+          padding: 16px var(--page-gutter) 0 !important;
           margin: 0 !important;
           border-bottom: none !important;
           background: none !important;
+          gap: 16px;
         }
         .page {
           background: #0a0a0a;
@@ -171,21 +217,94 @@ export default function App() {
           display: flex;
           align-items: center;
           gap: 16px;
+          flex: 0 0 auto;
           text-decoration: none;
           color: inherit;
         }
         .brand-logo {
           height: 29px;
-          width: auto;
+          width: 29px;
+          flex: 0 0 auto;
           display: block;
+          color: var(--text);
         }
         .site-title {
-          font-family: 'Kimberley Black', var(--font-display), system-ui, sans-serif;
+          font-family: 'Sora', var(--font-display), system-ui, sans-serif;
+          font-weight: 300;
+          letter-spacing: 0em;
           text-transform: lowercase;
         }
         .brand-text {
           display: flex;
           flex-direction: column;
+        }
+
+        /* Top-right nav/action row — smaller, pill-cornered versions of
+           the buttons that used to sit inside the hero itself. On narrow
+           screens it scrolls horizontally rather than wrapping, so the
+           header's height stays fixed and predictable (route-content and
+           the hero both rely on --header-h being accurate). */
+        .nav-actions {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          flex: 1 1 auto;
+          min-width: 0;
+          justify-content: flex-end;
+          overflow-x: auto;
+          scrollbar-width: none;
+          -webkit-overflow-scrolling: touch;
+          padding-bottom: 2px;
+        }
+        .nav-actions::-webkit-scrollbar {
+          display: none;
+        }
+        .nav-cta {
+          flex: 0 0 auto;
+          display: inline-flex;
+          align-items: center;
+          padding: 8px 16px;
+          background: transparent;
+          border: 1px solid rgba(255, 255, 255, 0.4);
+          border-radius: 10px;
+          color: var(--text);
+          text-decoration: none;
+          font-family: var(--font-body);
+          font-size: 12.5px;
+          letter-spacing: 0.01em;
+          white-space: nowrap;
+          cursor: pointer;
+          transition: background 180ms ease, color 180ms ease, border-color 180ms ease;
+        }
+        .nav-cta:hover {
+          background: var(--text);
+          color: var(--bg);
+          border-color: var(--text);
+        }
+        /* .contact-btn and .nav-cta are equal specificity, so whichever
+           stylesheet loads second could still win — this scoped,
+           more-specific selector guarantees the nav row's look applies
+           regardless of load order. */
+        .nav-actions .contact-btn {
+          display: inline-flex;
+          align-items: center;
+          padding: 8px 16px;
+          background: transparent;
+          border: 1px solid rgba(255, 255, 255, 0.4);
+          border-radius: 10px;
+          color: var(--text);
+          font-family: var(--font-body);
+          font-size: 12.5px;
+          letter-spacing: 0.01em;
+          text-transform: none;
+          white-space: nowrap;
+          cursor: pointer;
+          transition: background 180ms ease, color 180ms ease, border-color 180ms ease;
+        }
+        .nav-actions .contact-btn:hover {
+          background: var(--text);
+          color: var(--bg);
+          border-color: var(--text);
         }
 
         /* Pushes every routed page down below the fixed header. The hero
@@ -196,7 +315,7 @@ export default function App() {
         }
 
         .gallery-section {
-          padding: 64px 48px 32px;
+          padding: 64px var(--page-gutter) 32px;
         }
         .gallery-section-title {
           font-family: var(--font-display);
@@ -208,10 +327,35 @@ export default function App() {
         @media (max-width: 560px) {
           .gallery-section { padding: 48px 24px 16px; }
           :root {
-            --header-h: 130px;
+            --header-h: 138px;
           }
           .site-header {
-            padding: 26px var(--page-gutter) 0 !important;
+            padding: 14px var(--page-gutter) 0 !important;
+            gap: 10px;
+          }
+          .brand-logo {
+            height: 24px;
+            width: 24px;
+          }
+          .nav-cta,
+          .nav-actions .contact-btn {
+            padding: 7px 12px;
+            font-size: 11.5px;
+          }
+          /* Mobile only: a horizontally-scrolling single row reads as
+             cramped/messy next to the logo at this width. Instead, take
+             the row out of the header's normal flex flow and let it wrap
+             into a compact block stacked in the top-right corner —
+             logo stays top-left on its own, buttons form their own
+             right-aligned cluster underneath that same top edge. */
+          .nav-actions {
+            position: absolute;
+            top: 14px;
+            right: var(--page-gutter);
+            max-width: 190px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            overflow: visible;
           }
         }
       `}</style>
@@ -224,7 +368,6 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/project/:slug" element={<ProjectDetail />} />
-          <Route path="/process" element={<ProcessPage />} />
           <Route path="/process/:slug" element={<WorkflowPage />} />
         </Routes>
       </div>

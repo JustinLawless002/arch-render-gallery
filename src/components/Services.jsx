@@ -1,8 +1,17 @@
+import Reveal from './Reveal.jsx';
+import RevealLines from './RevealLines.jsx';
+
 const services = [
   'Still renders',
   'Animated walkthroughs',
   '3D modeling from CAD / plans, sketches or photos',
   'Detailed floorplans, elevations and sections',
+  'Organic or parametric 3D modelling',
+  'AI assisted iterative concept designs',
+  'Masterplan development for large projects',
+  'Interior design mood boards and material selection',
+  'Full project presentations for print or for PowerPoint video display',
+  'Sourcing for materials, furniture and fittings',
 ];
 
 export default function Services() {
@@ -10,7 +19,7 @@ export default function Services() {
     <section className="services-section" id="services" aria-label="Services">
       <style>{`
         .services-section {
-          padding: 64px 48px 96px;
+          padding: 64px var(--page-gutter, 48px) 96px;
         }
         .services-inner {
           max-width: 720px;
@@ -56,17 +65,23 @@ export default function Services() {
       `}</style>
 
       <div className="services-inner">
-        <div className="services-eyebrow">Services</div>
-        <h2 className="services-title">What I offer</h2>
+        <Reveal as="div" className="services-eyebrow">Services</Reveal>
+        <RevealLines as="h2" className="services-title" text="What I offer" delay={0.08} />
         <ul className="services-list">
-          {services.map((s) => (
-            <li key={s}>{s}</li>
+          {services.map((s, i) => (
+            <Reveal as="li" key={s} delay={0.16 + i * 0.06}>
+              {s}
+            </Reveal>
           ))}
         </ul>
-        <p className="services-turnaround">
+        <Reveal
+          as="p"
+          className="services-turnaround"
+          delay={0.16 + services.length * 0.06 + 0.05}
+        >
           Typical turnaround: 2–3 weeks for initial submission on a standard-sized commercial
           or residential project. Contact for a quotation for your project.
-        </p>
+        </Reveal>
       </div>
     </section>
   );

@@ -58,10 +58,25 @@ button {
 
 /* ---------- Layout shell ---------- */
 
+/* The header's nav links (visible on every page) jump to these ids —
+   scroll-margin-top keeps the fixed header from covering whatever section
+   they land on. */
+#gallery,
+#motion,
+#about,
+#services,
+#process {
+  scroll-margin-top: var(--header-h, 160px);
+}
+
 .page {
-  max-width: 1600px;
-  margin: 0 auto;
-  padding: 0 clamp(20px, 4vw, 56px);
+  /* Previously capped at 1600px and centered, which — combined with each
+     section's own left/right padding below — left a visible double
+     margin down both sides on wide screens. The header and hero already
+     go edge-to-edge; this makes the rest of the page match instead of
+     sitting inset inside it. Each section keeps its own padding as the
+     only gutter now. */
+  width: 100%;
 }
 
 /* ---------- Header ---------- */
@@ -177,7 +192,7 @@ button {
   bottom: 0;
   display: flex;
   align-items: baseline;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 12px;
   padding: 14px 16px;
   background: linear-gradient(to top, rgba(13, 15, 16, 0.92), transparent);
@@ -191,40 +206,24 @@ button {
   opacity: 1;
 }
 
-/* The index and title rise into place one after the other. */
-.tile-index,
 .tile-title {
   transform: translateY(14px);
   opacity: 0;
   transition: transform 550ms cubic-bezier(0.16, 1, 0.3, 1), opacity 400ms ease;
 }
 
-.tile:hover .tile-index,
-.tile:focus-within .tile-index,
 .tile:hover .tile-title,
 .tile:focus-within .tile-title {
   transform: translateY(0);
   opacity: 1;
 }
 
-.tile:hover .tile-title,
-.tile:focus-within .tile-title {
-  transition-delay: 70ms;
-}
-
-.tile-index {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--accent);
-  letter-spacing: 0.05em;
-}
-
 .tile-title {
   font-family: var(--font-display);
   font-size: 14px;
   font-weight: 500;
-  color: var(--text);
-  text-align: right;
+  color: var(--accent);
+  text-align: left;
 }
 
 .tile-button {

@@ -2,6 +2,8 @@ import { BrowserRouter } from 'react-router-dom';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { MotionConfig } from 'motion/react';
+import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import App from './App.jsx';
 import './index.css';
 
@@ -17,6 +19,12 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <MotionConfig reducedMotion="never">
         <App />
       </MotionConfig>
+      {/* Vercel analytics. Both only send data from the live site — they do
+          nothing while you run it locally. Analytics = visitors and page
+          views (Analytics tab). SpeedInsights = real-visitor loading speed
+          (Speed Insights tab); delete that one line if you don't want it. */}
+      <Analytics />
+      <SpeedInsights />
     </BrowserRouter>
   </React.StrictMode>
 );

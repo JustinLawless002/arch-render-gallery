@@ -1,10 +1,13 @@
+import Reveal from './Reveal.jsx';
+import { EmailIcon, WhatsAppIcon } from './ContactIcons.jsx';
+
 export default function SiteFooter() {
   return (
     <footer className="site-footer-full" aria-label="Contact and social links">
       <style>{`
         .site-footer-full {
           border-top: 1px solid var(--line);
-          padding: 48px 48px 32px;
+          padding: 48px var(--page-gutter, 48px) 32px;
         }
         .footer-columns {
           display: grid;
@@ -40,6 +43,14 @@ export default function SiteFooter() {
           color: var(--accent);
           text-decoration: underline;
         }
+        .footer-contact-link {
+          display: inline-flex;
+          align-items: center;
+          gap: 10px;
+        }
+        .footer-contact-link svg {
+          flex: 0 0 auto;
+        }
         .footer-bottom {
           font-family: var(--font-mono);
           font-size: 11px;
@@ -52,26 +63,37 @@ export default function SiteFooter() {
       `}</style>
 
       <div className="footer-columns">
-        <div className="footer-col">
+        <Reveal as="div" className="footer-col" delay={0}>
           <div className="footer-heading">Contact</div>
-          <a href="mailto:justin@primedesign.design">justin@primedesign.design</a>
-          <a href="https://wa.me/6281337828881" target="_blank" rel="noopener noreferrer">
-            WhatsApp +62 813-3782-8881
+          <a className="footer-contact-link" href="mailto:justin@primedesign.design">
+            <EmailIcon />
+            email
           </a>
-        </div>
-        <div className="footer-col">
+          <a
+            className="footer-contact-link"
+            href="https://wa.me/6281337828881"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <WhatsAppIcon />
+            whatsapp
+          </a>
+        </Reveal>
+        <Reveal as="div" className="footer-col" delay={0.08}>
           <div className="footer-heading">Studio</div>
           <span>Renon, Denpasar, Bali, Indonesia</span>
-        </div>
-        <div className="footer-col">
+        </Reveal>
+        <Reveal as="div" className="footer-col" delay={0.16}>
           <div className="footer-heading">Follow</div>
           <a href="https://www.instagram.com/primedesign09/" target="_blank" rel="noopener noreferrer">
             Instagram
           </a>
-        </div>
+        </Reveal>
       </div>
 
-      <div className="footer-bottom">Prime Design — {new Date().getFullYear()}</div>
+      <Reveal as="div" className="footer-bottom" delay={0.24}>
+        praxio — {new Date().getFullYear()}
+      </Reveal>
     </footer>
   );
 }

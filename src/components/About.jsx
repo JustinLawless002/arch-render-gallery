@@ -1,9 +1,12 @@
+import Reveal from './Reveal.jsx';
+import RevealLines from './RevealLines.jsx';
+
 export default function About() {
   return (
     <section className="about-section" id="about" aria-label="About">
       <style>{`
         .about-section {
-          padding: 96px 48px 64px;
+          padding: 96px var(--page-gutter, 48px) 64px;
         }
         .about-inner {
           max-width: 720px;
@@ -39,20 +42,21 @@ export default function About() {
       `}</style>
 
       <div className="about-inner">
-        <div className="about-eyebrow">About</div>
-        <h2 className="about-title">Background</h2>
+        <Reveal as="div" className="about-eyebrow">About</Reveal>
+        <RevealLines as="h2" className="about-title" text="Background" delay={0.08} />
         <div className="about-body">
-          <p>
-            After studying 2D animation and 3D modelling, I started my career at a AAA video game
-            studio. That experience taught me the beauty and economy of simple efficiency.
-          </p>
-          <p>
-            I later brought those drawing and 3D design skills into the architecture and archviz
-            industry, where I've now worked for more than 18 years. My specialty is rapid
-            prototyping of designs and delivering detailed, descriptive visual stills, animations,
-            and technical drawings. With the arrival of AI-assisted workflows, I've been able to
-            deliver even better results at a lower cost.
-          </p>
+          <RevealLines
+            as="p"
+            delay={0.12}
+            stagger={0.03}
+            text="After studying 2D animation and 3D modelling, I started my career at a AAA video game studio. That experience taught me the beauty and economy of simple efficiency."
+          />
+          <RevealLines
+            as="p"
+            delay={0.18}
+            stagger={0.03}
+            text="I later brought those drawing and 3D design skills into the architecture and archviz industry, where I've now worked for more than 18 years. My specialty is rapid prototyping of designs and delivering detailed, descriptive visual stills, animations, and technical drawings. With the arrival of AI-assisted workflows, I've been able to deliver even better results at a lower cost."
+          />
         </div>
       </div>
     </section>

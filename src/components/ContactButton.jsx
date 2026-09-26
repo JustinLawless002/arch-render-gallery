@@ -1,74 +1,94 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { EmailIcon, WhatsAppIcon } from './ContactIcons.jsx';
 
+// Hover-driven (not click-driven) — the panel appears the instant the
+// pointer arrives, no click needed. It's rendered via a portal straight
+// into document.body rather than positioned relative to the button in
+// place: the button normally sits inside .nav-actions, which needs
+// overflow-x: auto on narrow screens (see App.jsx) so the button row can
+// scroll horizontally instead of wrapping — but any ancestor with
+// overflow set also clips absolutely-positioned children that spill out
+// of it, which would cut this panel off. A portal sidesteps that
+// entirely by escaping the clipped ancestor, wherever this component is
+// used from.
 export default function ContactButton({ className = '', label = 'Contact' }) {
   const [open, setOpen] = useState(false);
-  const wrapRef = useRef(null);
+  const [coords, setCoords] = useState(null);
+  const btnRef = useRef(null);
 
-  useEffect(() => {
-    if (!open) return;
-    const onClickOutside = (e) => {
-      if (wrapRef.current && !wrapRef.current.contains(e.target)) {
-        setOpen(false);
-      }
-    };
-    const onKey = (e) => {
-      if (e.key === 'Escape') setOpen(false);
-    };
-    document.addEventListener('mousedown', onClickOutside);
-    window.addEventListener('keydown', onKey);
-    return () => {
-      document.removeEventListener('mousedown', onClickOutside);
-      window.removeEventListener('keydown', onKey);
-    };
-  }, [open]);
+  const show = () => {
+    const r = btnRef.current?.getBoundingClientRect();
+    if (r) setCoords({ top: r.bottom + 8, right: window.innerWidth - r.right });
+    setOpen(true);
+  };
+  const hide = () => setOpen(false);
 
   return (
-    <div className="contact-wrap" ref={wrapRef}>
+    <div className="contact-wrap" onMouseEnter={show} onMouseLeave={hide} onFocus={show} onBlur={hide}>
       <style>{`
         .contact-wrap {
           position: relative;
         }
         .contact-panel {
-          position: absolute;
-          top: calc(100% + 10px);
-          right: 0;
-          min-width: 240px;
-          background: var(--bg-elevated);
+          position: fixed;
+          min-width: 180px;
+          background: transparent;
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
           border: 1px solid var(--line);
-          padding: 16px;
+          padding: 14px;
           display: flex;
           flex-direction: column;
-          gap: 10px;
-          z-index: 50;
+          gap: 12px;
+          z-index: 500;
+          opacity: 0;
+          transform: translateY(-4px);
+          pointer-events: none;
+          transition: opacity 150ms ease, transform 150ms ease;
+        }
+        .contact-panel.is-open {
+          opacity: 1;
+          transform: translateY(0);
+          pointer-events: auto;
         }
         .contact-panel a {
+          display: inline-flex;
+          align-items: center;
+          gap: 10px;
           font-family: var(--font-body);
-          font-size: 14px;
+          font-size: 13px;
           color: var(--text);
           text-decoration: none;
+          white-space: nowrap;
+        }
+        .contact-panel a svg {
+          flex: 0 0 auto;
         }
         .contact-panel a:hover {
           color: var(--accent);
-          text-decoration: underline;
         }
       `}</style>
 
-      <button
-        type="button"
-        className={`contact-btn ${className}`.trim()}
-        onClick={() => setOpen((v) => !v)}
-        aria-expanded={open}
-      >
+      <button ref={btnRef} type="button" className={`contact-btn ${className}`.trim()}>
         {label}
       </button>
 
-      {open && (
-        <div className="contact-panel">
-          <a href="mailto:justin@primedesign.design">justin@primedesign.design</a>
-          <a href="https://wa.me/6281337828881" target="_blank" rel="noopener noreferrer">
-            WhatsApp +62 813-3782-8881
+      {createPortal(
+        <div
+          className={`contact-panel${open ? ' is-open' : ''}`}
+          style={coords ? { top: coords.top, right: coords.right } : undefined}
+        >
+          <a href="mailto:justin@primedesign.design">
+            <EmailIcon />
+            email
           </a>
-        </div>
+          <a href="https://wa.me/6281337828881" target="_blank" rel="noopener noreferrer">
+            <WhatsAppIcon />
+            whatsapp
+          </a>
+        </div>,
+        document.body
       )}
     </div>
   );

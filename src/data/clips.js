@@ -21,21 +21,21 @@ const clips = [
   {
     id: 'adel',
     slug: 'adel villa',
-    title: 'Adel',
+    title: 'Adel Villa',
     src: '/videos/Adel.mp4',
     poster: '/videos/posters/Adel.jpg',
   },
   {
     id: 'al-nawah',
     slug: 'al nawah',
-    title: 'Al-Nawah',
+    title: 'Al-Nawah Villa',
     src: '/videos/Al-Nawah.mp4',
     poster: '/videos/posters/Al-Nawah.jpg',
   },
   {
     id: 'atelier',
     slug: 'atelier',
-    title: 'Atelier',
+    title: 'The Atelier',
     src: '/videos/Atelier.mp4',
     poster: '/videos/posters/Atelier.jpg',
   },
@@ -46,7 +46,7 @@ const clips = [
     // clarify what distinguishes the two still images. Only one card shows
     // in the Motion grid; both project pages will still find this video.
     aliasSlugs: ['chocomelt2x'],
-    title: 'Chocomelt — Bahrain',
+    title: 'Chocomelt',
     src: '/videos/Chocomelt_Bahrain.mp4',
     poster: '/videos/posters/Chocomelt_Bahrain.jpg',
   },
@@ -67,7 +67,7 @@ const clips = [
   {
     id: 'ofk-habra',
     slug: 'ofk habra',
-    title: 'OFK Habra',
+    title: 'Open Flame Kitchen',
     src: '/videos/OFK-Habra.mp4',
     poster: '/videos/posters/OFK-Habra.jpg',
   },

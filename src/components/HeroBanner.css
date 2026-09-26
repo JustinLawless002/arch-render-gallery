@@ -84,12 +84,6 @@
   max-width: 46ch;
 }
 
-.hero__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-}
-
 .hero__cta {
   display: inline-block;
   padding: 12px 26px;
@@ -111,11 +105,13 @@
   border-color: #f5f4f1;
 }
 
-/* .contact-btn (global stylesheet) and .hero__cta are equal specificity,
-   so whichever stylesheet happens to load second could still win — this
-   scoped, more-specific selector guarantees the hero's look wins here
-   regardless of that load order. */
-.hero__actions .contact-btn {
+/* Still used by WorkflowPage.jsx's "Ready to start?" ContactButton and its
+   "back to process" fallback link — .hero__actions itself is no longer
+   rendered anywhere (those buttons moved into the header's .nav-actions),
+   but .hero__cta is a shared button look, not a hero-exclusive one despite
+   the name, so it stays here rather than getting deleted with the rest of
+   the hero-actions styling. */
+.contact-btn.hero__cta {
   display: inline-block;
   padding: 12px 26px;
   background: transparent;
@@ -130,7 +126,7 @@
   transition: background 200ms ease, color 200ms ease, border-color 200ms ease;
 }
 
-.hero__actions .contact-btn:hover {
+.contact-btn.hero__cta:hover {
   background: #f5f4f1;
   color: #0a0a0a;
   border-color: #f5f4f1;

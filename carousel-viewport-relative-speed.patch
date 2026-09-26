@@ -1,0 +1,71 @@
+diff --git a/src/components/BrandCarousel.jsx b/src/components/BrandCarousel.jsx
+index ab5fc2b..5811b5e 100644
+--- a/src/components/BrandCarousel.jsx
++++ b/src/components/BrandCarousel.jsx
+@@ -297,18 +297,28 @@ function BrandLightbox({ brand, onClose }) {
+ 
+ export default function BrandCarousel() {
+   const [open, setOpen] = useState(null);
++  const carouselRef = useRef(null);
+   const trackRef = useRef(null);
+   const pausedRef = useRef(false);
+-  // Explicit, guaranteed pixels-per-second — driven by JS (requestAnimationFrame)
+-  // rather than a CSS @keyframes translateX(-50%). The old CSS version's real
+-  // speed was (total row width / duration), so it silently got faster as more
+-  // brand logos were added — the exact same 480s duration moves much faster
+-  // once there are 40+ logos than it did with 14. Measuring the row's actual
+-  // width at runtime and stepping it by a fixed px/frame sidesteps that
+-  // entirely: this rate is the same no matter how many brands exist.
+-  const PX_PER_SEC = 8;
++  // Speed as a fraction of the carousel's own width per second, not a
++  // fixed pixel count — a fixed px/s moves the SAME absolute distance
++  // regardless of screen size, but a phone screen shows far less of the
++  // row at once, so that same distance is a much bigger fraction of what's
++  // visible: identical px/s reads as crawling on desktop and sprinting on
++  // a narrow phone. Scaling by the container's own width keeps the
++  // fraction-of-screen-per-second constant instead, so the felt speed
++  // matches across screen sizes. Re-measured on resize (device rotation,
++  // window resize), not just once on mount.
++  const WIDTH_FRACTION_PER_SEC = 0.012; // 1.2% of the carousel's width, per second
++  const containerWidthRef = useRef(0);
+ 
+   useEffect(() => {
++    const measure = () => {
++      containerWidthRef.current = carouselRef.current?.clientWidth || 0;
++    };
++    measure();
++    window.addEventListener('resize', measure);
++
+     let raf;
+     let last = performance.now();
+     let offset = 0;
+@@ -318,7 +328,8 @@ export default function BrandCarousel() {
+       const track = trackRef.current;
+       if (track && !pausedRef.current) {
+         const singleSetWidth = track.scrollWidth / 2; // track holds two copies back to back
+-        offset -= PX_PER_SEC * dt;
++        const pxPerSec = containerWidthRef.current * WIDTH_FRACTION_PER_SEC;
++        offset -= pxPerSec * dt;
+         if (singleSetWidth > 0 && offset <= -singleSetWidth) {
+           offset += singleSetWidth; // wraps seamlessly — the duplicate copy lines up exactly
+         }
+@@ -327,7 +338,10 @@ export default function BrandCarousel() {
+       raf = requestAnimationFrame(tick);
+     };
+     raf = requestAnimationFrame(tick);
+-    return () => cancelAnimationFrame(raf);
++    return () => {
++      cancelAnimationFrame(raf);
++      window.removeEventListener('resize', measure);
++    };
+   }, []);
+ 
+   if (brands.length === 0) return null;
+@@ -340,6 +354,7 @@ export default function BrandCarousel() {
+   return (
+     <div
+       className="brand-carousel"
++      ref={carouselRef}
+       onMouseEnter={() => { pausedRef.current = true; }}
+       onMouseLeave={() => { pausedRef.current = false; }}
+     >

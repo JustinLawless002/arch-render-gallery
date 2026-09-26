@@ -1,5 +1,7 @@
 import { useRef, useState } from "react";
 import ClipOverlay from "./ClipOverlay.jsx";
+import Reveal from "./Reveal.jsx";
+import RevealLines from "./RevealLines.jsx";
 
 /**
  * Motion section — sits below (or as a tab beside) the main image gallery.
@@ -26,7 +28,11 @@ import ClipOverlay from "./ClipOverlay.jsx";
 function ClipCard({ clip, index, onExpand }) {
   const videoRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(true);
+  // The poster stays on top of the video and only fades out once the video
+  // actually has a real frame on screen (the 'playing' event) — swapping on
+  // a timer or on play() instead risks a black flash between the poster
+  // disappearing and the browser having decoded anything to show yet.
+  const [showPoster, setShowPoster] = useState(true);
 
   const handleEnter = () => {
     const v = videoRef.current;
@@ -41,34 +47,20 @@ function ClipCard({ clip, index, onExpand }) {
     if (!v) return;
     v.pause();
     setIsPlaying(false);
-  };
-
-  const toggleMute = (e) => {
-    e.stopPropagation();
-    const v = videoRef.current;
-    if (!v) return;
-    const next = !v.muted;
-    v.muted = next;
-    setIsMuted(next);
-    // Unmuting is a direct click, so browsers allow it — make sure
-    // it's actually playing rather than sitting on the poster frame.
-    if (!next) {
-      v.play().catch(() => {});
-      setIsPlaying(true);
-    }
+    setShowPoster(true);
   };
 
   return (
-    <div
+    <Reveal
+      as="div"
       className="clip-card"
+      delay={(index % 3) * 0.1}
       onMouseEnter={handleEnter}
       onMouseLeave={handleLeave}
       onFocus={handleEnter}
       onBlur={handleLeave}
       tabIndex={0}
     >
-      <div className="clip-index">M-{String(index + 1).padStart(2, "0")}</div>
-
       <div className="phone-frame" onClick={() => onExpand(clip, videoRef.current)}>
         <div className="phone-notch" />
         <video
@@ -80,20 +72,22 @@ function ClipCard({ clip, index, onExpand }) {
           loop
           playsInline
           preload="metadata"
+          onPlaying={() => setShowPoster(false)}
+        />
+        {/* Crossfades out over the video once real frames are playing,
+            instead of the browser's own abrupt poster→frame swap. */}
+        <img
+          src={clip.poster}
+          alt=""
+          aria-hidden="true"
+          className="clip-poster"
+          style={{ opacity: showPoster ? 1 : 0 }}
         />
         {!isPlaying && <div className="clip-play-hint">▶</div>}
-        <button
-          type="button"
-          className="mute-toggle"
-          onClick={toggleMute}
-          aria-label={isMuted ? "Unmute clip" : "Mute clip"}
-        >
-          {isMuted ? "🔇" : "🔊"}
-        </button>
       </div>
 
       <div className="clip-caption">{clip.title}</div>
-    </div>
+    </Reveal>
   );
 }
 
@@ -103,13 +97,13 @@ export default function MotionSection({ clips = [] }) {
   const [expanded, setExpanded] = useState(null);
 
   return (
-    <section className="motion-section" aria-label="Motion work">
+    <section className="motion-section" id="motion" aria-label="Motion work">
       <style>{`
         .motion-section {
           padding: 96px 0 112px;
         }
         .motion-header {
-          padding: 0 48px;
+          padding: 0 var(--page-gutter, 48px);
           margin-bottom: 48px;
         }
         .motion-eyebrow {
@@ -130,7 +124,7 @@ export default function MotionSection({ clips = [] }) {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
           gap: 40px 32px;
-          padding: 0 48px;
+          padding: 0 var(--page-gutter, 48px);
         }
         @media (max-width: 900px) {
           .clip-grid { grid-template-columns: repeat(2, 1fr); }
@@ -147,14 +141,6 @@ export default function MotionSection({ clips = [] }) {
           max-width: 340px;
           margin: 0 auto;
         }
-        .clip-index {
-          font-family: var(--font-mono);
-          font-size: 11px;
-          color: var(--accent);
-          letter-spacing: 0.05em;
-          margin-bottom: 12px;
-          align-self: flex-start;
-        }
         .phone-frame {
           position: relative;
           width: 100%;
@@ -167,6 +153,7 @@ export default function MotionSection({ clips = [] }) {
           box-shadow: 0 20px 40px -20px rgba(0,0,0,0.6);
           transition: border-color 0.25s ease;
           cursor: pointer;
+          overflow: hidden;
         }
         .clip-card:hover .phone-frame,
         .clip-card:focus .phone-frame {
@@ -190,6 +177,19 @@ export default function MotionSection({ clips = [] }) {
           border-radius: 16px;
           background: var(--bg-elevated);
         }
+        .clip-poster {
+          position: absolute;
+          top: 6px;
+          left: 6px;
+          right: 6px;
+          bottom: 6px;
+          width: calc(100% - 12px);
+          height: calc(100% - 12px);
+          object-fit: cover;
+          border-radius: 16px;
+          pointer-events: none;
+          transition: opacity 480ms ease;
+        }
         .clip-play-hint {
           position: absolute;
           inset: 0;
@@ -203,31 +203,12 @@ export default function MotionSection({ clips = [] }) {
           pointer-events: none;
           opacity: 0.85;
         }
-        .mute-toggle {
-          position: absolute;
-          bottom: 16px;
-          right: 16px;
-          width: 32px;
-          height: 32px;
-          border-radius: 50%;
-          border: none;
-          background: rgba(0,0,0,0.55);
-          color: var(--text);
-          font-size: 14px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          z-index: 3;
-        }
-        .mute-toggle:hover {
-          background: var(--accent);
-        }
         .clip-caption {
-          font-family: var(--font-body);
+          font-family: var(--font-display);
           margin-top: 14px;
-          font-size: 14px;
-          color: var(--text-dim);
+          font-size: 15px;
+          font-weight: 500;
+          color: var(--accent);
           letter-spacing: 0.01em;
           align-self: flex-start;
         }
@@ -238,7 +219,7 @@ export default function MotionSection({ clips = [] }) {
 
       <div className="motion-header">
         <div className="motion-eyebrow">Selected animations</div>
-        <h2 className="motion-title">Motion</h2>
+        <RevealLines as="h2" className="motion-title" text="Motion" />
       </div>
 
       <div className="clip-grid">
