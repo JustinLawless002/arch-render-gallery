@@ -1,0 +1,93 @@
+# ─────────────────────────────────────────────────────────────────────
+#  BRAND DESCRIPTIONS
+#  Text shown under the images when a brand is opened from the carousel.
+#
+#  HOW TO USE
+#   • Each brand has a block that starts with its name in [square brackets].
+#     That name must match the brand's logo file name, without ".png"
+#     (e.g. the file  usquyu.png  is  [usquyu] ).
+#   • "Title:" is the big heading shown above the description. Change it
+#     to whatever you want it to read as (e.g. "OFK" or "Open Flame Kitchen").
+#     If you delete the Title line, a name is made from the file name.
+#   • Paste the description on the lines underneath the Title.
+#     Normal typing is fine: apostrophes, quotes, dashes, accents, etc.
+#     A long paragraph can be on one line or split over several lines.
+#     Leave a BLANK line between paragraphs if you want more than one.
+#   • Lines that start with "#" (like these) are notes and are ignored.
+#     If a description ever needs to start with #, put a space before it.
+#   • A brand with no description just shows its title and images.
+#   • To add a new brand later, copy any block, then change the name in
+#     the [brackets] to match the new logo file name.
+# ─────────────────────────────────────────────────────────────────────
+
+
+[burger-boutique]
+Title: Burger Boutique
+# paste the description below this line (this note line is ignored)
+Burger Boutique has multiple locations across Kuwait, with plans for more in the Gulf region. All featuring a stylish, urban, modern casual vibe with a refreshed bold design blending comfort, energy, and creativity—suited for lunch, casual evenings, or groups. 
+
+[cacao]
+Title: Life with Cacao
+# paste the description below this line (this note line is ignored)
+Life with Cacao is a fine dessert café concept focused on high-quality chocolate desserts using premium Swiss couverture, natural ingredients. It has several locations in Kuwait plus outlets in Saudi Arabia, Oman, and Qatar. Interiors are posh and modernly designed with whimsical, Instagram-worthy elements like living greenery walls, creating a luxurious, inviting haven for chocolate lovers and leisurely experiences. 
+
+[chocomelt]
+Title: Chocomelt
+# paste the description below this line (this note line is ignored)
+Chocomelt is a chocolate boutique and specialty café offering unique signature desserts, sweet treats, and bold beverages made with award-winning/finest cacao and Belgian chocolate. It has multiple outlets across the GCC (Kuwait, UAE, Bahrain, Qatar, Oman). Spaces emphasize thoughtful, modern design focused on quality and indulgence, delivering a unique, community-oriented dessert experience.
+
+[dikakeen]
+Title: Dikakeen
+# paste the description below this line (this note line is ignored)
+Dikakeen is a Kuwaiti fusion/multi-cuisine restaurant blending traditional Kuwaiti, Lebanese, Middle Eastern, and some Mexican-inspired dishes. Interiors feature a whimsical, trendy souk-style atmosphere with vintage Kuwaiti memorabilia, creating a fun, engaging, heritage-meets-modern community feel. 
+
+
+[kland]
+Title: K-Land
+# paste the description below this line (this note line is ignored)
+K-Land is primarily a large seasonal family entertainment/play destination (soft play zones, themed areas inspired by Kuwaiti landmarks) at Blajat Beach in Salmiya, it includes dining  and K-Yard vendors/cafés/restaurants. It operates as a multi-zone park (thousands of sqm) with free outdoor areas and ticketed indoor play. The overall mood is lively, family-oriented, magical/fantasy outdoor-indoor entertainment with sea views and relaxed lifestyle dining hubs. 
+
+[lenotre]
+Title: Lenôtre Café
+# paste the description below this line (this note line is ignored)
+Lenôtre Café & Boutique brings refined French culinary traditions with contemporary/Middle Eastern twists Locations include 360 Mall, Marina Mall, and historically others (Avenues, Al Fanar). Interiors evoke elegant, Parisian-chic refinement suitable for leisurely meals or celebrations, with a polished café atmosphere. 
+
+[meem]
+Title: Meem Café
+# paste the description below this line (this note line is ignored)
+Meem Café is a modern Lebanese bistro and café emphasizing fresh Mediterranean/Lebanese flavors using region-centric ingredients. Locations include Al Kout Mall, 360 Mall, Al Hamra, and others. It offers a communal, fresh, and culturally influenced vibe with comfortable seating for sharing and casual dining. 
+
+[melenzane]
+Title: Melenzane
+# paste the description below this line (this note line is ignored)
+Melenzane specializes in authentic Sicilian/Italian cuisine with modern twists. It has around six branches in Kuwait (Avenues/Soku, Al Kout, Al Bida’a, Al Hamra, Jahra/Mutlaa, Khiran) plus others in the GCC. Interiors provide a relaxed, warm, welcoming, and intimate classy ambiance ideal for casual or family Italian dining. 
+
+[nagwa]
+Title: Nagwa
+# paste the description below this line (this note line is ignored)
+Nagwa Boutique/Café focuses on traditional Arabic confectioneries and sweets, cakes, gift boxes, and café items, emphasizing high-quality gifting and hospitality. It has café/boutique locations (e.g., Promenade Mall Hawally, Sharq/Wattiyah) with production facilities and regional reach. The style is elegant and authentic, with beautiful colorful packaging and a traditional heritage-focused boutique mood suitable for gifts and souvenirs.
+
+[ofk]
+Title: Open Flame Kitchen
+# paste the description below this line (this note line is ignored)
+OFK (Open Flame Kitchen) is an upscale fusion concept centered on open-flame grilling and wood-fired cooking, serving globally influenced dishes. With a flagship at 360 Mall Kuwait and one in Dubai. Interiors are slick, design-led, theatrical, and energetic with a visible show kitchen/grill creating a buzzy, see-and-be-seen special-occasion atmosphere. 
+
+[overjar]
+Title: Overjar
+# paste the description below this line (this note line is ignored)
+Overjar is a feel-good dessert brand specializing in chocolate-forward sweets plus coffee and brunch. Locations include The Avenues and others in Kuwait. Interiors are vibrant, sensory, open-plan, and communal with a chocolate-themed, creative, and welcoming mood that brings people together. 
+
+[trapani]
+Title: Trapani
+# paste the description below this line (this note line is ignored)
+Trapani offers authentic Italian cuisine with a local/Venetian-inspired twist. It has three branches in Kuwait (Avenues, Assima Mall, Murouj) plus others in Qatar. Interiors draw from 1920s Art Deco elegance with cameriere-inspired elements, creating a comfortable, charming, romantic, or relaxed classic Italian atmosphere. 
+
+[usquyu]
+Title: Usquyu
+Usquyu is a niche Peruvian restaurant highlighting Andean flavors. Named after a Quechuan wild-cat It was located in Al Nusuf Complex. The interior featured a chic main-stage communal table overlooking the bar and open kitchen, with abstract murals creating an immersive, novel cultural dining mood.
+
+
+[zwara]
+Title: Zwarah
+# paste the description below this line (this note line is ignored)
+Zwara is a Kuwaiti home-style casual concept café offering traditional dishes and an unusual style. The overall feeling emphasizes authentic, family-oriented Kuwaiti home hospitality, retro memorabilia and heritage flavors in a straightforward, comforting way. 

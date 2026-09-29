@@ -1,0 +1,31 @@
+# ─────────────────────────────────────────────────────────────────────
+#  TESTIMONIALS
+#  Shown one at a time in the Testimonials section, flipping to the next
+#  automatically.
+#
+#  HOW TO USE
+#   • Type or paste one testimonial per block. Normal typing is fine:
+#     apostrophes, quotes, dashes, line breaks within a paragraph, etc.
+#   • Separate each testimonial from the next with a line containing only
+#     three dashes:  ---
+#   • Optionally add who said it on its own line right after the quote,
+#     starting with a dash, e.g.:  - Jane Doe, Villa Project
+#     Leave that line out if you don't want an attribution shown.
+#   • Lines starting with "#" (like these) are notes and are ignored.
+#   • To add more later, copy a whole block (quote + optional attribution
+#     line) and paste it below a new  ---  line.
+# ─────────────────────────────────────────────────────────────────────
+
+
+As an architect, designer, engineer, sculptor and painter with about 50 years of experience in the fields of holistic eco architecture, I was glad that I could work with Justin to bring my concept designs to life. On the many projects that we worked on together he showed endless enthusiasm, energy and a good eye for improving designs by seeing and solving them quickly.
+- Heinz Pahl-Kaupp
+
+---
+
+Justin delivered exceptional visuals that allowed our clients to feel like their expectations were being met at every step of the way. Their ability to interpret our brief and provide rapid revisions was instrumental in securing final client approval. The ease of communication, their knowledge of their craft and friendliness made the experience a pleasure.
+- Chaing Chen
+
+---
+
+Justin and his team worked diligently and attentively on the design of our dream villa, communication with him was always a delight. The end result was as close to and in some cases even better than what we could have imagined. I would highly recommend to any him to any potential client.
+- Susan Nichols

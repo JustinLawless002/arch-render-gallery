@@ -49,13 +49,13 @@ export default function About() {
             as="p"
             delay={0.12}
             stagger={0.03}
-            text="After studying 2D animation and 3D modelling, I started my career at a AAA video game studio. That experience taught me the beauty and economy of simple efficiency."
+            text="After studying 2D animation and 3D modelling, I started my career at a AAA video game studio. That experience taught me the importance of profesionalism in my craft and that good design comes from solving problems through practice and never giving up until it works."
           />
           <RevealLines
             as="p"
             delay={0.18}
             stagger={0.03}
-            text="I later brought those drawing and 3D design skills into the architecture and archviz industry, where I've now worked for more than 18 years. My specialty is rapid prototyping of designs and delivering detailed, descriptive visual stills, animations, and technical drawings. With the arrival of AI-assisted workflows, I've been able to deliver even better results at a lower cost."
+            text="I later brought drawing and 3D organic design skills into the architecture and archviz industry, where I've now worked for more than 18 years. My specialty is rapid prototyping of designs and delivering detailed, descriptive visuals and technical drawings. With the arrival of AI-assisted workflows, I've been able to deliver even better results, faster and therefore at lower costs."
           />
         </div>
       </div>

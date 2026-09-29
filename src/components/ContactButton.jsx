@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { EmailIcon, WhatsAppIcon } from './ContactIcons.jsx';
 
@@ -16,16 +16,32 @@ export default function ContactButton({ className = '', label = 'Contact' }) {
   const [open, setOpen] = useState(false);
   const [coords, setCoords] = useState(null);
   const btnRef = useRef(null);
+  const closeTimerRef = useRef(null);
 
+  // The panel is portaled to document.body, so it's not actually a DOM
+  // descendant of .contact-wrap — there's a real (if small) gap between
+  // the button and the panel below it that belongs to neither element.
+  // Moving the mouse from one to the other briefly crosses that gap, and
+  // a plain mouseleave-closes-it-immediately approach closes the panel
+  // while the cursor is still in transit, before it ever reaches the
+  // panel. Delaying the close slightly, and cancelling that delay if the
+  // cursor lands on the panel (or back on the button) in time, covers
+  // the gap without needing to precisely measure or bridge it.
   const show = () => {
+    clearTimeout(closeTimerRef.current);
     const r = btnRef.current?.getBoundingClientRect();
     if (r) setCoords({ top: r.bottom + 8, right: window.innerWidth - r.right });
     setOpen(true);
   };
-  const hide = () => setOpen(false);
+  const scheduleHide = () => {
+    clearTimeout(closeTimerRef.current);
+    closeTimerRef.current = setTimeout(() => setOpen(false), 250);
+  };
+
+  useEffect(() => () => clearTimeout(closeTimerRef.current), []);
 
   return (
-    <div className="contact-wrap" onMouseEnter={show} onMouseLeave={hide} onFocus={show} onBlur={hide}>
+    <div className="contact-wrap" onMouseEnter={show} onMouseLeave={scheduleHide} onFocus={show} onBlur={scheduleHide}>
       <style>{`
         .contact-wrap {
           position: relative;
@@ -78,8 +94,10 @@ export default function ContactButton({ className = '', label = 'Contact' }) {
         <div
           className={`contact-panel${open ? ' is-open' : ''}`}
           style={coords ? { top: coords.top, right: coords.right } : undefined}
+          onMouseEnter={show}
+          onMouseLeave={scheduleHide}
         >
-          <a href="mailto:justin@primedesign.design">
+          <a href="mailto:justin@praxio.studio">
             <EmailIcon />
             email
           </a>

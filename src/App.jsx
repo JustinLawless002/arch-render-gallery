@@ -3,10 +3,12 @@ import { Routes, Route, useLocation, Link } from 'react-router-dom';
 import { motion, useScroll, useMotionValueEvent } from 'motion/react';
 import Gallery from './components/Gallery.jsx';
 import RevealLines from './components/RevealLines.jsx';
+import PraxioLogo from './components/PraxioLogo.jsx';
 import ContactButton from './components/ContactButton.jsx';
 import MotionSection from './components/MotionSection.jsx';
 import About from './components/About.jsx';
 import Services from './components/Services.jsx';
+import Testimonials from './components/Testimonials.jsx';
 import SiteFooter from './components/SiteFooter.jsx';
 import ProjectDetail from './components/ProjectDetail.jsx';
 import HeroBanner from './components/HeroBanner.jsx';
@@ -97,29 +99,7 @@ function HidingHeader() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
       >
-        <svg
-          className="brand-logo"
-          viewBox="0 0 40 40"
-          xmlns="http://www.w3.org/2000/svg"
-          aria-hidden="true"
-        >
-          <rect x="3" y="3" width="34" height="34" rx="9" fill="none" stroke="currentColor" strokeWidth="2.6" />
-          <text
-            x="20"
-            y="21.5"
-            textAnchor="middle"
-            dominantBaseline="central"
-            fontFamily="'Sora', var(--font-display), system-ui, sans-serif"
-            fontWeight="600"
-            fontSize="19"
-            fill="currentColor"
-          >
-            P
-          </text>
-        </svg>
-        <div className="brand-text">
-          <h1 className="site-title">praxio</h1>
-        </div>
+        <PraxioLogo className="brand-logo" />
       </MotionLink>
 
       <motion.nav
@@ -155,16 +135,18 @@ function Home() {
           />
         </HeroBanner>
 
-        <MotionSection clips={clips} />
-
         <div id="gallery" className="gallery-section">
           <RevealLines as="h2" className="gallery-section-title" text="Projects gallery" />
           <BrandCarousel />
           <Gallery />
         </div>
+
+        <MotionSection clips={clips} />
+
         <ProcessSection />
         <About />
         <Services />
+        <Testimonials />
       </main>
       <SiteFooter />
     </>
@@ -222,21 +204,11 @@ export default function App() {
           color: inherit;
         }
         .brand-logo {
-          height: 29px;
-          width: 29px;
+          height: 34px;
+          width: auto;
           flex: 0 0 auto;
           display: block;
           color: var(--text);
-        }
-        .site-title {
-          font-family: 'Sora', var(--font-display), system-ui, sans-serif;
-          font-weight: 300;
-          letter-spacing: 0em;
-          text-transform: lowercase;
-        }
-        .brand-text {
-          display: flex;
-          flex-direction: column;
         }
 
         /* Top-right nav/action row — smaller, pill-cornered versions of
@@ -334,8 +306,8 @@ export default function App() {
             gap: 10px;
           }
           .brand-logo {
-            height: 24px;
-            width: 24px;
+            height: 26px;
+            width: auto;
           }
           .nav-cta,
           .nav-actions .contact-btn {

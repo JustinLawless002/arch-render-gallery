@@ -21,6 +21,14 @@ function titleFromPath(p) {
     .join(' ');
 }
 
+// Titles hidden from the gallery on request. Kept as a title list rather
+// than deleting the underlying raw/processed images, so bringing one back
+// later is just removing a line here — no re-uploading or reprocessing.
+// "K-Land" was asked for, but no such title exists here (it's the name of
+// a brand in the carousel below, not a gallery project) — "K Yard" is the
+// only close match, so that's what's excluded; flag if that's wrong.
+const HIDDEN_TITLES = new Set(['Chocomelt', 'Chocomelt2x', 'K Yard', 'Melanzane', 'Ofk Dubai', 'Al Othman']);
+
 export function buildWorks() {
   return Object.entries(thumbs)
     .map(([path, thumbSrc]) => {
@@ -36,6 +44,7 @@ export function buildWorks() {
         detail: projectDetails[slugifyTitle(title)] || null,
       };
     })
+    .filter((w) => !HIDDEN_TITLES.has(w.title))
     .sort((a, b) => {
       // Projects with a written description sort first (alphabetically),
       // projects still awaiting content sink to the bottom (alphabetically

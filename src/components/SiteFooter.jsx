@@ -65,7 +65,7 @@ export default function SiteFooter() {
       <div className="footer-columns">
         <Reveal as="div" className="footer-col" delay={0}>
           <div className="footer-heading">Contact</div>
-          <a className="footer-contact-link" href="mailto:justin@primedesign.design">
+          <a className="footer-contact-link" href="mailto:justin@praxio.studio">
             <EmailIcon />
             email
           </a>
