@@ -76,8 +76,8 @@ export default function Testimonials() {
           font-size: clamp(28px, 4vw, 44px);
           font-weight: 600;
           letter-spacing: -0.01em;
-          margin: 0 0 56px;
-          text-align: center;
+          margin: 0 auto 40px;
+          max-width: 720px;
         }
         /* min-height is just a comfortable resting size, not a hard cap —
            .testimonial below sizes to its own content rather than being
@@ -97,9 +97,9 @@ export default function Testimonials() {
           right: 0;
           display: flex;
           flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          text-align: center;
+          align-items: flex-start;
+          justify-content: flex-start;
+          text-align: left;
           animation: testimonial-in 700ms cubic-bezier(0.16, 1, 0.3, 1);
         }
         @keyframes testimonial-in {
@@ -123,9 +123,9 @@ export default function Testimonials() {
         }
         .testimonials-dots {
           display: flex;
-          justify-content: center;
           gap: 10px;
-          margin-top: 40px;
+          max-width: 720px;
+          margin: 40px auto 0;
         }
         .testimonials-dots button {
           width: 8px;

@@ -8,8 +8,11 @@ export default function About() {
         .about-section {
           padding: 96px var(--page-gutter, 48px) 64px;
         }
+        /* Block sits in the centre of the page; the text inside stays
+           left-aligned so paragraphs read naturally. */
         .about-inner {
           max-width: 720px;
+          margin: 0 auto;
         }
         .about-eyebrow {
           font-family: var(--font-mono);

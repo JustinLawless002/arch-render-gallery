@@ -36,6 +36,13 @@ const groups = [
   },
 ];
 
+// Banner above the cards: how revisions work. Edit freely.
+const flexible = {
+  title: 'Revisions at every stage',
+  text: 'Unlimited revisions within the agreed scope. You give feedback and fine-tune the design at each step, so the final images match what you had in mind.',
+  stages: ['Concept & layout', 'Materials & look', 'Lighting & atmosphere', 'Final images'],
+};
+
 function Icon({ name }) {
   const common = {
     width: 26,
@@ -68,6 +75,15 @@ function Icon({ name }) {
       <svg {...common}>
         <path d="M12 3v4M12 17v4M3 12h4M17 12h4" />
         <path d="M12 8.5 13.3 10.7 15.5 12 13.3 13.3 12 15.5 10.7 13.3 8.5 12 10.7 10.7z" />
+      </svg>
+    );
+  if (name === 'loop')
+    return (
+      <svg {...common}>
+        <path d="M20 11a8 8 0 0 0-14.3-4.9L4 8" />
+        <path d="M4 3.5V8h4.5" />
+        <path d="M4 13a8 8 0 0 0 14.3 4.9L20 16" />
+        <path d="M20 20.5V16h-4.5" />
       </svg>
     );
   return (
@@ -169,6 +185,89 @@ export default function Services() {
           background: var(--text);
           opacity: 0.55;
         }
+        .services-flex {
+          max-width: 1100px;
+          margin: 0 auto 16px;
+          padding: 28px 28px 30px;
+          border-radius: 20px;
+          background: linear-gradient(160deg, rgba(255, 255, 255, 0.085), rgba(255, 255, 255, 0.02));
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+          gap: 28px 48px;
+          align-items: center;
+        }
+        .services-flex__head { display: flex; gap: 18px; align-items: flex-start; }
+        .services-flex__head .service-card__icon { flex-shrink: 0; }
+        .services-flex h3 {
+          font-family: var(--font-display);
+          font-size: 22px;
+          font-weight: 500;
+          letter-spacing: -0.01em;
+          margin: 4px 0 10px;
+        }
+        .services-flex p {
+          margin: 0;
+          font-size: 15px;
+          line-height: 1.55;
+          color: var(--text-dim);
+          max-width: 46ch;
+        }
+        /* The four stages, joined by a line: feedback happens at each one. */
+        .services-stages {
+          list-style: none;
+          margin: 0;
+          padding: 0;
+          display: grid;
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          position: relative;
+        }
+        .services-stages::before {
+          content: '';
+          position: absolute;
+          left: 7px;
+          right: calc(25% - 8px);
+          top: 7px;
+          height: 1px;
+          background: rgba(255, 255, 255, 0.22);
+        }
+        .services-stages li {
+          position: relative;
+          padding: 26px 12px 0 0;
+          font-size: 14px;
+          line-height: 1.35;
+          color: var(--text);
+        }
+        .services-stages li::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 15px;
+          height: 15px;
+          border-radius: 50%;
+          border: 1px solid var(--text);
+          background: var(--bg);
+          box-sizing: border-box;
+        }
+        .services-stages li::after {
+          content: '';
+          position: absolute;
+          left: 4.5px;
+          top: 4.5px;
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: var(--text);
+        }
+        @media (max-width: 900px) {
+          .services-flex { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 560px) {
+          .services-flex { padding: 22px 20px 24px; border-radius: 16px; }
+          .services-stages { grid-template-columns: 1fr; gap: 14px; }
+          .services-stages::before { left: 7px; right: auto; top: 7px; bottom: 7px; width: 1px; height: auto; }
+          .services-stages li { padding: 0 0 0 28px; }
+        }
         .services-foot {
           display: flex;
           flex-wrap: wrap;
@@ -212,6 +311,23 @@ export default function Services() {
       `}</style>
 
       <RevealLines as="h2" className="services-title" text="What I offer" delay={0.08} />
+
+      <Reveal as="div" className="services-flex" delay={0.1}>
+        <div className="services-flex__head">
+          <span className="service-card__icon" aria-hidden="true">
+            <Icon name="loop" />
+          </span>
+          <div>
+            <h3>{flexible.title}</h3>
+            <p>{flexible.text}</p>
+          </div>
+        </div>
+        <ol className="services-stages" aria-label="Stages where you can request changes">
+          {flexible.stages.map((st) => (
+            <li key={st}>{st}</li>
+          ))}
+        </ol>
+      </Reveal>
 
       <div className="services-grid">
         {groups.map((g, i) => (
