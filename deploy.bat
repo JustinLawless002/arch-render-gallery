@@ -4,7 +4,7 @@ setlocal
 cd /d "%~dp0"
 
 echo ================================
-echo   Prime Design - Deploy Script
+echo   praxio - Deploy Script
 echo ================================
 echo.
 
@@ -48,7 +48,7 @@ if %errorlevel% neq 0 (
 echo.
 echo ================================
 echo   Done! Vercel is now building and deploying automatically.
-echo   Check vercel.com for progress, or visit primedesign.design
+echo   Check vercel.com for progress, or visit praxio.studio
 echo   in a minute or two once the build finishes.
 echo ================================
 echo.

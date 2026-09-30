@@ -8,7 +8,8 @@ import brandDescriptionsRaw from '../data/brand-descriptions.txt?raw';
 //
 // Auto-discovers every logo in src/assets/images/brands/ — drop a new
 // logo there and it appears automatically. Each brand can have a render
-// set in brands/render/ named <brand-slug>-01.jpg, -02.jpg, etc; clicking
+// set: originals in brands/render-raw/ named <brand-slug>-01.jpg, -02.jpg…,
+// shrunk into brands/render/ by `npm run process-images`; clicking
 // the front slide opens those in the lightbox, with the title/description
 // from src/data/brand-descriptions.txt.
 //

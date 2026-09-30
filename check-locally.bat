@@ -1,6 +1,6 @@
 @echo off
 echo ===================================
-echo   Prime Design - local check
+echo   praxio - local check
 echo ===================================
 echo.
 
