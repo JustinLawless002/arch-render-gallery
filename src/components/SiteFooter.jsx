@@ -92,7 +92,7 @@ export default function SiteFooter() {
         </Reveal>
         <Reveal as="div" className="footer-col" delay={0.08}>
           <div className="footer-heading">Follow</div>
-          <a href="https://www.instagram.com/primedesign09/" target="_blank" rel="noopener noreferrer">
+          <a href="https://www.instagram.com/praxiodesign" target="_blank" rel="noopener noreferrer">
             Instagram
           </a>
         </Reveal>

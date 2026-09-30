@@ -175,6 +175,7 @@ function HidingHeader() {
         <MotionLink
           to="/"
           className="brand"
+          aria-label="praxio, back to the top of the home page"
           initial={{ opacity: 0, y: -48 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
@@ -320,7 +321,7 @@ export default function App() {
           color: inherit;
         }
         .brand-logo {
-          height: 34px;
+          height: 26px;
           width: auto;
           flex: 0 0 auto;
           display: block;
@@ -529,7 +530,7 @@ export default function App() {
             padding: 14px var(--page-gutter) 0 !important;
           }
           .brand-logo {
-            height: 26px;
+            height: 21px;
             width: auto;
           }
           .nav-actions { display: none; }
