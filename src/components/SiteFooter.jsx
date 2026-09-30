@@ -1,5 +1,6 @@
 import Reveal from './Reveal.jsx';
 import { EmailIcon, WhatsAppIcon } from './ContactIcons.jsx';
+import CopyButton, { CONTACT_EMAIL } from './CopyButton.jsx';
 
 export default function SiteFooter() {
   return (
@@ -11,7 +12,8 @@ export default function SiteFooter() {
         }
         .footer-columns {
           display: grid;
-          grid-template-columns: repeat(3, 1fr);
+          grid-template-columns: repeat(2, minmax(0, max-content));
+          column-gap: 96px;
           gap: 32px;
           max-width: 900px;
           margin-bottom: 40px;
@@ -40,8 +42,14 @@ export default function SiteFooter() {
           text-decoration: none;
         }
         .footer-col a:hover {
-          color: var(--accent);
+          color: var(--text);
           text-decoration: underline;
+        }
+        .footer-email-row {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          flex-wrap: wrap;
         }
         .footer-contact-link {
           display: inline-flex;
@@ -65,10 +73,13 @@ export default function SiteFooter() {
       <div className="footer-columns">
         <Reveal as="div" className="footer-col" delay={0}>
           <div className="footer-heading">Contact</div>
-          <a className="footer-contact-link" href="mailto:justin@praxio.studio">
-            <EmailIcon />
-            email
-          </a>
+          <div className="footer-email-row">
+            <a className="footer-contact-link" href={`mailto:${CONTACT_EMAIL}`}>
+              <EmailIcon />
+              {CONTACT_EMAIL}
+            </a>
+            <CopyButton iconOnly />
+          </div>
           <a
             className="footer-contact-link"
             href="https://wa.me/6281337828881"
@@ -80,10 +91,6 @@ export default function SiteFooter() {
           </a>
         </Reveal>
         <Reveal as="div" className="footer-col" delay={0.08}>
-          <div className="footer-heading">Studio</div>
-          <span>Renon, Denpasar, Bali, Indonesia</span>
-        </Reveal>
-        <Reveal as="div" className="footer-col" delay={0.16}>
           <div className="footer-heading">Follow</div>
           <a href="https://www.instagram.com/primedesign09/" target="_blank" rel="noopener noreferrer">
             Instagram
@@ -91,9 +98,11 @@ export default function SiteFooter() {
         </Reveal>
       </div>
 
-      <Reveal as="div" className="footer-bottom" delay={0.24}>
-        praxio — {new Date().getFullYear()}
-      </Reveal>
+      {/* Plain (not a scroll-reveal): it's the last thing on the page, so it
+          can never scroll far enough up to trigger a reveal animation. */}
+      <div className="footer-bottom">
+        © {new Date().getFullYear()} praxio. All rights reserved.
+      </div>
     </footer>
   );
 }

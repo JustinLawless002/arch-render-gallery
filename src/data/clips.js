@@ -47,6 +47,7 @@ const clips = [
     // in the Motion grid; both project pages will still find this video.
     aliasSlugs: ['chocomelt2x'],
     title: 'Chocomelt',
+    hideInMotion: true, // removed from the homepage Motion grid; delete this line to show it again
     src: '/videos/Chocomelt_Bahrain.mp4',
     poster: '/videos/posters/Chocomelt_Bahrain.jpg',
   },

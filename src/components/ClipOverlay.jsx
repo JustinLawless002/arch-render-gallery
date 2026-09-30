@@ -230,6 +230,7 @@ export default function ClipOverlay({ clip, originEl, onClose }) {
         .clip-overlay-close:hover {
           background: var(--accent);
           border-color: var(--accent);
+          color: var(--bg);
         }
       `}</style>
 

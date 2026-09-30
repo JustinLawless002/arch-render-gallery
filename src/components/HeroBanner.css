@@ -54,6 +54,38 @@
   );
 }
 
+.hero__fade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 26vh;
+  z-index: 2;
+  pointer-events: none;
+  /* Eased stops (not a straight 2-stop ramp) so the fade has no visible
+     band where it starts. Ends on the page's own background colour. */
+  background: linear-gradient(
+    to bottom,
+    rgba(10, 10, 10, 0) 0%,
+    rgba(10, 10, 10, 0.18) 30%,
+    rgba(10, 10, 10, 0.5) 58%,
+    rgba(10, 10, 10, 0.82) 82%,
+    #0a0a0a 100%
+  );
+}
+
+/* About + Contact, floating over the video's bottom-right corner. Sits on
+   the same baseline as the headline block on the left. */
+.hero__corner {
+  position: absolute;
+  z-index: 4;
+  right: var(--page-gutter, 6vw);
+  bottom: 9vh;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .hero__content {
   position: relative;
   z-index: 3;
@@ -143,5 +175,11 @@
 
   .hero__headline {
     max-width: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .hero__corner {
+    display: none;
   }
 }

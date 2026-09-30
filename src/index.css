@@ -4,7 +4,7 @@
   --line: #262a2c;
   --text: #f1efe9;
   --text-dim: #85817a;
-  --accent: #b5563c;
+  --accent: #f1efe9; /* was copper #b5563c — now the same off-white as --text */
 
   --font-display: 'Space Grotesk', system-ui, sans-serif;
   --font-body: 'Inter', system-ui, sans-serif;

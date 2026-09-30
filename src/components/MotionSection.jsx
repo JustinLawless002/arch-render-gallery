@@ -91,13 +91,15 @@ function ClipCard({ clip, index, onExpand }) {
   );
 }
 
-export default function MotionSection({ clips = [] }) {
+// nested: shown as a subsection inside the Projects gallery (which already
+// supplies the page side padding), with a smaller heading.
+export default function MotionSection({ clips = [], nested = false }) {
   // { clip, el } — `el` is the clicked card's <video>, which the overlay
   // grows out of and shrinks back into.
   const [expanded, setExpanded] = useState(null);
 
   return (
-    <section className="motion-section" id="motion" aria-label="Motion work">
+    <section className={`motion-section${nested ? ' motion-section--nested' : ''}`} id="motion" aria-label="Motion work">
       <style>{`
         .motion-section {
           padding: 96px 0 112px;
@@ -120,6 +122,23 @@ export default function MotionSection({ clips = [] }) {
           letter-spacing: -0.01em;
           margin: 6px 0 0;
         }
+        /* Subsection of Projects gallery: no extra side padding (the
+           gallery section already has it) and a smaller, h3-level title. */
+        .motion-section--nested { padding: 88px 0 24px; }
+        .motion-section--nested .motion-header,
+        .motion-section--nested .clip-grid { padding-left: 0; padding-right: 0; }
+        .motion-section--nested .motion-title { font-size: clamp(22px, 2.6vw, 30px); }
+        /* Desktop: the phone frames are 340px wide, so plain 1fr columns
+           left big empty strips between them. Pack them to 340px columns,
+           centred, with the gaps cut by ~60%. */
+        @media (min-width: 901px) {
+          .motion-section .clip-grid {
+            grid-template-columns: repeat(4, minmax(0, 340px)); /* 4 across × 2 rows */
+            justify-content: center;
+            column-gap: 46px;
+            row-gap: 16px; /* was 40px */
+          }
+        }
         .clip-grid {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
@@ -131,6 +150,7 @@ export default function MotionSection({ clips = [] }) {
         }
         @media (max-width: 560px) {
           .clip-grid { grid-template-columns: 1fr; padding: 0 24px; gap: 40px; }
+          .motion-section--nested { padding: 64px 0 16px; }
         }
         .clip-card {
           outline: none;
@@ -219,11 +239,11 @@ export default function MotionSection({ clips = [] }) {
 
       <div className="motion-header">
         <div className="motion-eyebrow">Selected animations</div>
-        <RevealLines as="h2" className="motion-title" text="Motion" />
+        <RevealLines as={nested ? 'h3' : 'h2'} className="motion-title" text="Motion" />
       </div>
 
       <div className="clip-grid">
-        {clips.map((clip, i) => (
+        {clips.filter((c) => !c.hideInMotion).map((clip, i) => (
           <ClipCard key={clip.id ?? i} clip={clip} index={i} onExpand={(c, el) => setExpanded({ clip: c, el })} />
         ))}
       </div>

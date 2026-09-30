@@ -14,7 +14,10 @@ const HERO_SRC = '/videos/hero/hero.webm';
 // have that setting on specifically because motion causes them real
 // discomfort, not just as a performance preference, so this hero will
 // autoplay for them regardless.
-export default function HeroBanner({ children }) {
+// corner: optional buttons floated over the video's bottom-right corner
+// (About + Contact on the homepage). Hidden at phone width, where they
+// live in the hamburger menu instead.
+export default function HeroBanner({ children, corner = null }) {
   return (
     <section className="hero">
       <video
@@ -32,7 +35,11 @@ export default function HeroBanner({ children }) {
         }}
       />
       <div className="hero__scrim" />
+      {/* Soft fade from the video into the page background, so there's
+          no hard edge where the hero ends. */}
+      <div className="hero__fade" aria-hidden="true" />
       <div className="hero__content">{children}</div>
+      {corner && <div className="hero__corner">{corner}</div>}
     </section>
   );
 }

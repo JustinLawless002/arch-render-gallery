@@ -17,9 +17,10 @@ import brandDescriptionsRaw from '../data/brand-descriptions.txt?raw';
 // still works — its tile is built in the browser instead — but re-run
 // that script after adding a brand so visitors get the small file.
 //
-// Motion: one continuous position, eased every frame, so the mouse
-// wheel / trackpad, drag/swipe, ← → keys (while hovered) and autoplay all
-// glide and then settle on the nearest slide.
+// Motion: one continuous position, eased every frame, so drag/swipe,
+// ← → keys (while hovered) and autoplay all glide and then settle on the
+// nearest slide. The mouse wheel is deliberately NOT captured — scrolling
+// over the carousel scrolls the page as normal.
 
 // Knobs worth playing with while testing.
 const SETTINGS = {
@@ -28,9 +29,7 @@ const SETTINGS = {
   spacing: 1, // gap between slide centres, in slide widths (1 = touching like the demo)
   perspective: 1200, // px — lower = more dramatic 3D
   shadows: true, // darken the turned-away edge of side slides
-  wheelPxPerSlide: 220, // wheel/trackpad scroll needed to move one slide — higher = slower
   ease: 9, // how quickly motion catches up — higher = snappier, lower = floatier
-  snapDelay: 160, // ms after the wheel stops before it settles on a slide
   flick: 0.25, // how far a fast swipe keeps going (seconds of momentum)
   autoplayDelay: 3500, // ms between automatic moves; 0 = off
   previewSize: 900, // px — size the tile images are shrunk to (lightbox still uses full size)
@@ -250,7 +249,6 @@ export default function BrandCarousel() {
     let lastDrawnPos = NaN;
     let lastInteraction = performance.now();
     let hovered = false;
-    let wheelTimer = null;
 
     const ro = new ResizeObserver(() => {
       slideW = slideRefs.current[0]?.offsetWidth || slideW;
@@ -265,26 +263,6 @@ export default function BrandCarousel() {
     const goTo = (t) => {
       e.target = t;
       touched();
-    };
-
-    // ── Wheel / trackpad: moves the target continuously (so it glides),
-    // then shortly after the wheel stops, settles on a slide — rounding
-    // in the direction you were scrolling, so a single mouse-wheel notch
-    // always moves exactly one slide instead of springing back.
-    const onWheel = (ev) => {
-      ev.preventDefault();
-      if (openRef.current) return;
-      let d = Math.abs(ev.deltaX) > Math.abs(ev.deltaY) ? ev.deltaX : ev.deltaY;
-      if (ev.deltaMode === 1) d *= 40; // Firefox "lines"
-      else if (ev.deltaMode === 2) d *= 800; // "pages"
-      if (!d) return;
-      e.target = clamp(e.target + d / SETTINGS.wheelPxPerSlide, e.pos - 4, e.pos + 4);
-      touched();
-      const dir = Math.sign(d);
-      clearTimeout(wheelTimer);
-      wheelTimer = setTimeout(() => {
-        e.target = dir > 0 ? Math.ceil(e.target - 0.15) : Math.floor(e.target + 0.15);
-      }, SETTINGS.snapDelay);
     };
 
     // ── Drag / swipe (mouse and touch via pointer events). A press that
@@ -349,7 +327,6 @@ export default function BrandCarousel() {
       if (ev.key === 'ArrowLeft') goTo(Math.round(e.target) - 1);
     };
 
-    stage.addEventListener('wheel', onWheel, { passive: false });
     stage.addEventListener('pointerdown', onPointerDown);
     stage.addEventListener('pointermove', onPointerMove);
     stage.addEventListener('pointerup', onPointerUp);
@@ -419,10 +396,8 @@ export default function BrandCarousel() {
 
     return () => {
       cancelAnimationFrame(raf);
-      clearTimeout(wheelTimer);
       ro.disconnect();
       io.disconnect();
-      stage.removeEventListener('wheel', onWheel);
       stage.removeEventListener('pointerdown', onPointerDown);
       stage.removeEventListener('pointermove', onPointerMove);
       stage.removeEventListener('pointerup', onPointerUp);
@@ -518,7 +493,7 @@ export default function BrandCarousel() {
 
       <div className="cf-caption" aria-live="polite">
         <div className="cf-caption__name">{current?.name}</div>
-        <div className="cf-caption__hint">Swipe or scroll · tap the front image to open</div>
+        <div className="cf-caption__hint">Drag or swipe · tap the front image to open</div>
       </div>
 
       {open && <BrandLightbox brand={open} onClose={() => setOpen(null)} />}
