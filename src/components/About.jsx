@@ -42,7 +42,6 @@ export default function About() {
       `}</style>
 
       <div className="about-inner">
-        <Reveal as="div" className="about-eyebrow">About</Reveal>
         <RevealLines as="h2" className="about-title" text="Background" delay={0.08} />
         <div className="about-body">
           <RevealLines

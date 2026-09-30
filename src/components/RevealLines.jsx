@@ -73,9 +73,14 @@ export default function RevealLines({
     });
     ro.observe(el);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(remeasure);
+    // `ready` can resolve before a late webfont is even requested, which
+    // left lines split at the fallback font's widths. Re-measure whenever
+    // any font finishes loading too.
+    document.fonts?.addEventListener?.('loadingdone', remeasure);
     return () => {
       clearTimeout(timer);
       ro.disconnect();
+      document.fonts?.removeEventListener?.('loadingdone', remeasure);
     };
   }, []);
 

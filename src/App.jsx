@@ -240,11 +240,11 @@ function Home() {
             </>
           }
         >
-          <RevealLines as="h2" className="hero__headline" text="Bringing architectural vision to life" delay={0.15} />
+          <RevealLines as="h2" className="hero__headline" text="Practical design solutions." delay={0.15} />
           <RevealLines
             as="p"
             className="hero__subtext"
-            text="Concept renders, animations, and technical drawings — refined through AI-assisted workflows."
+            text="A flexible design process that lets you fine-tune your project at every step of the way."
             delay={0.4}
             stagger={0.06}
           />

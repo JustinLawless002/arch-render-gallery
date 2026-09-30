@@ -181,8 +181,19 @@ export default function ProcessSection() {
           margin: 0 0 36px;
         }
 
+        /* Wide screens: heading on the left, wizard fills the rest of the row. */
+        @media (min-width: 1100px) {
+          .process-layout {
+            display: grid;
+            grid-template-columns: minmax(240px, 0.7fr) minmax(0, 2fr);
+            gap: 56px;
+            align-items: start;
+          }
+          .process-head { position: sticky; top: calc(var(--header-h, 80px) + 24px); }
+          .process-intro { margin-bottom: 0; }
+        }
         .wz {
-          max-width: 860px;
+          max-width: 1100px;
           border: 1px solid var(--line);
           border-radius: 20px;
           background: rgba(22, 24, 26, 0.6);
@@ -422,12 +433,14 @@ export default function ProcessSection() {
         }
       `}</style>
 
-      <Reveal as="div" className="process-eyebrow">Process</Reveal>
-      <RevealLines as="h2" className="process-title" text="Start your project here" delay={0.08} />
-      <Reveal as="p" className="process-intro" delay={0.12}>
-        A few quick questions and you'll have a brief ready to send, plus a clear
-        picture of how the project will run.
-      </Reveal>
+      <div className="process-layout">
+      <div className="process-head">
+        <RevealLines as="h2" className="process-title" text="Start your project here" delay={0.08} />
+        <Reveal as="p" className="process-intro" delay={0.12}>
+          A few quick questions and you'll have a brief ready to send, plus a clear
+          picture of how the project will run.
+        </Reveal>
+      </div>
 
       <Reveal as="div" delay={0.16}>
         <div className="wz" ref={topRef}>
@@ -606,7 +619,7 @@ export default function ProcessSection() {
                       It's with praxio now, and a copy is on its way to {d.email}. You'll get a reply with questions or a
                       quote. If you have drawings or references, just reply to that email and attach them.
                     </p>
-                    {wf && <Link to={`/process/${wf.slug}`}>See how your project will run →</Link>}
+                    {wf && <Link to={`/process/${wf.slug}`}>See how your project will run</Link>}
                   </div>
                 )}
 
@@ -655,7 +668,7 @@ export default function ProcessSection() {
                               <li key={s.title}>{s.title}</li>
                             ))}
                           </ol>
-                          <Link to={`/process/${wf.slug}`}>See every step in detail →</Link>
+                          <Link to={`/process/${wf.slug}`}>See every step in detail</Link>
                         </div>
                       )}
                     </div>
@@ -703,11 +716,11 @@ export default function ProcessSection() {
 
           <div className="wz-nav">
             <button type="button" className="wz-btn wz-btn--ghost" onClick={() => go(step - 1)} disabled={step === 0 || send.state === 'sent'}>
-              ← Back
+              Back
             </button>
             {step < STEPS.length - 1 ? (
               <button type="button" className="wz-btn wz-btn--primary" onClick={() => go(step + 1)}>
-                {step === STEPS.length - 2 ? 'Review brief' : 'Next'} →
+                {step === STEPS.length - 2 ? 'Review brief' : 'Next'}
               </button>
             ) : (
               <button
@@ -725,6 +738,7 @@ export default function ProcessSection() {
           </div>
         </div>
       </Reveal>
+      </div>
     </section>
   );
 }

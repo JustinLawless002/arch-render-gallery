@@ -147,7 +147,6 @@ export default function Testimonials() {
         }
       `}</style>
 
-      <Reveal as="div" className="testimonials-eyebrow">Testimonials</Reveal>
       <RevealLines as="h2" className="testimonials-title" text="What clients say" delay={0.08} />
 
       <div className="testimonials-viewport">

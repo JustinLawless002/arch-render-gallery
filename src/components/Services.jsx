@@ -99,12 +99,14 @@ export default function Services() {
           font-weight: 600;
           letter-spacing: -0.01em;
           margin: 0 0 32px;
+          text-align: center;
         }
         .services-grid {
           display: grid;
           grid-template-columns: repeat(2, minmax(0, 1fr));
           gap: 16px;
           max-width: 1100px;
+          margin: 0 auto;
         }
         .service-card {
           position: relative;
@@ -172,7 +174,9 @@ export default function Services() {
           flex-wrap: wrap;
           align-items: center;
           gap: 14px 20px;
-          margin-top: 28px;
+          justify-content: center;
+          text-align: center;
+          margin: 28px auto 0;
           max-width: 1100px;
         }
         .services-turnaround {
@@ -207,7 +211,6 @@ export default function Services() {
         }
       `}</style>
 
-      <Reveal as="div" className="services-eyebrow">Services</Reveal>
       <RevealLines as="h2" className="services-title" text="What I offer" delay={0.08} />
 
       <div className="services-grid">
@@ -242,7 +245,7 @@ export default function Services() {
           </span>
         </span>
         <SectionLink to="/#process" className="services-quote">
-          Get a quotation →
+          Get a quotation
         </SectionLink>
       </Reveal>
     </section>

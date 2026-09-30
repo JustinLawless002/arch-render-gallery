@@ -394,7 +394,6 @@ export default function CaseStudy() {
         }
       `}</style>
 
-      <Reveal as="div" className="cs-eyebrow">{CASE.eyebrow}</Reveal>
       <RevealLines as="h2" className="cs-title" text={CASE.title} delay={0.08} />
       <Reveal as="p" className="cs-lede" delay={0.12}>{CASE.lede}</Reveal>
 
@@ -468,7 +467,7 @@ export default function CaseStudy() {
             )}
           </div>
           <div className="cs-cta">
-            <SectionLink to="/#process">Start a project like this →</SectionLink>
+            <SectionLink to="/#process">Start a project like this</SectionLink>
           </div>
         </Reveal>
       </div>

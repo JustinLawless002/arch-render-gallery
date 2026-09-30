@@ -6,9 +6,12 @@
   --text-dim: #85817a;
   --accent: #f1efe9; /* was copper #b5563c — now the same off-white as --text */
 
-  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-display: 'Syne', system-ui, sans-serif;
   --font-body: 'Inter', system-ui, sans-serif;
-  --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+  /* Two typefaces only: Syne for headings, Inter for everything else.
+     --font-mono is kept as a name so existing label styles still work,
+     but it now points at Inter. */
+  --font-mono: var(--font-body);
 }
 
 * {

@@ -61,9 +61,6 @@ export default function Gallery() {
         @media (max-width: 900px) {
           .gallery { grid-template-columns: repeat(2, 1fr); }
         }
-        @media (max-width: 560px) {
-          .gallery { grid-template-columns: 1fr; }
-        }
         .gallery .tile {
           margin: 0 !important;
         }

@@ -149,7 +149,7 @@ export default function MotionSection({ clips = [], nested = false }) {
           .clip-grid { grid-template-columns: repeat(2, 1fr); }
         }
         @media (max-width: 560px) {
-          .clip-grid { grid-template-columns: 1fr; padding: 0 24px; gap: 40px; }
+          .clip-grid { grid-template-columns: repeat(2, 1fr); padding: 0 16px; gap: 20px 12px; }
           .motion-section--nested { padding: 64px 0 16px; }
         }
         .clip-card {
@@ -238,7 +238,6 @@ export default function MotionSection({ clips = [], nested = false }) {
       `}</style>
 
       <div className="motion-header">
-        <div className="motion-eyebrow">Selected animations</div>
         <RevealLines as={nested ? 'h3' : 'h2'} className="motion-title" text="Motion" />
       </div>
 

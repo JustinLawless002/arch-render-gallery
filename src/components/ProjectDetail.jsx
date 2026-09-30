@@ -250,7 +250,7 @@ export default function ProjectDetail() {
       `}</style>
 
       <Link to="/" className="back-link">
-        ← Back to gallery
+        Back to gallery
       </Link>
 
       {!work ? (

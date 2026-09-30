@@ -57,7 +57,7 @@ export default function WorkflowPage() {
     <main className="workflow-page">
       <div className="workflow-page__header">
         <Link to="/#process" className="workflow-page__back">
-          ← Back
+          Back
         </Link>
         {/* delay: the whole page also slides up on arrival (see
             WorkflowPage.css), so the title waits for that to settle. */}

@@ -32,3 +32,10 @@
 [data-reveal='out']::marker {
   color: transparent;
 }
+
+/* While measuring, a hyphenated word ("AI-assisted") must not split across
+   two lines, or it gets counted on the first line and the finished line
+   then wraps again at the hyphen. */
+[data-w] {
+  white-space: nowrap;
+}

@@ -6,9 +6,9 @@
 // the page would just jump. This runs the same everywhere.
 //
 // Tuning: duration grows with distance, between MIN_MS and MAX_MS.
-const MIN_MS = 900;
-const MAX_MS = 2000;
-const MS_PER_PX = 0.35;
+const MIN_MS = 700;
+const MAX_MS = 1500;
+const MS_PER_PX = 0.27;
 
 // Gentle start, gentle landing.
 const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
