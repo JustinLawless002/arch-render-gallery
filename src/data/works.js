@@ -27,7 +27,7 @@ function titleFromPath(p) {
 // "K-Land" was asked for, but no such title exists here (it's the name of
 // a brand in the carousel below, not a gallery project) — "K Yard" is the
 // only close match, so that's what's excluded; flag if that's wrong.
-const HIDDEN_TITLES = new Set(['Chocomelt', 'Chocomelt2x', 'K Yard', 'Melanzane', 'Ofk Dubai', 'Al Othman']);
+const HIDDEN_TITLES = new Set(['Chocomelt', 'Chocomelt2x', 'K Yard', 'Melanzane', 'Al Muhanna', 'Al Othman']);
 
 export function buildWorks() {
   return Object.entries(thumbs)

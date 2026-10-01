@@ -5,6 +5,7 @@ import { buildWorks } from '../data/works.js';
 import { getClipForSlug } from '../data/clips.js';
 import { peekHeroTransition, clearHeroTransition } from '../lib/heroTransition.js';
 import ClipOverlay from './ClipOverlay.jsx';
+import SectionLink from './SectionLink.jsx';
 
 const EASE = [0.16, 1, 0.3, 1];
 
@@ -244,6 +245,24 @@ export default function ProjectDetail() {
           margin: 0 0 12px;
         }
 
+        /* "Start a project like this" — same look as the wizard's outline
+           buttons; takes the visitor to the wizard on the homepage. */
+        .project-detail-cta {
+          display: inline-flex;
+          align-items: center;
+          margin-top: 32px;
+          padding: 12px 22px;
+          border-radius: 10px;
+          border: 1px solid rgba(255, 255, 255, 0.4);
+          background: transparent;
+          color: var(--text);
+          font-family: var(--font-body);
+          font-size: 14px;
+          text-decoration: none;
+          transition: background 180ms ease, color 180ms ease, border-color 180ms ease;
+        }
+        .project-detail-cta:hover { background: var(--text); color: var(--bg); border-color: var(--text); }
+
         @media (max-width: 560px) {
           .project-detail { padding: 24px 24px 64px; }
         }
@@ -357,6 +376,10 @@ export default function ProjectDetail() {
                 ) : (
                   <p className="project-detail-description muted">Project details coming soon.</p>
                 )}
+
+                <SectionLink to="/#process" className="project-detail-cta">
+                  Start a project like this
+                </SectionLink>
               </div>
             </div>
           </motion.div>

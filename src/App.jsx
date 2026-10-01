@@ -255,10 +255,14 @@ function Home() {
           <RevealLines as="h2" className="gallery-section-title" text="Projects gallery" />
           <BrandCarousel />
           <Gallery />
-          <MotionSection clips={clips} nested />
         </div>
 
         <CaseStudy />
+
+        {/* Motion clips follow the case study; same page padding as the gallery. */}
+        <div className="gallery-section gallery-section--motion">
+          <MotionSection clips={clips} nested />
+        </div>
 
         <ProcessSection />
         <About />
@@ -426,6 +430,7 @@ export default function App() {
         @media (max-width: 560px) {
           .gallery-section { padding: 48px 24px 16px; }
         }
+        .gallery-section--motion { padding-top: 0; }
 
         /* Hamburger — only shown at phone/tablet widths (below). */
         .menu-toggle {

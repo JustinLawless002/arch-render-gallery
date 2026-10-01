@@ -181,16 +181,20 @@ export default function ProcessSection() {
           margin: 0 0 36px;
         }
 
-        /* Wide screens: heading on the left, wizard fills the rest of the row. */
-        @media (min-width: 1100px) {
-          .process-layout {
-            display: grid;
-            grid-template-columns: minmax(240px, 0.7fr) minmax(0, 2fr);
-            gap: 56px;
-            align-items: start;
+        /* Heading sits above the wizard, lined up with the box's edges. On
+           wide screens the title goes left and the intro right, bottoms level. */
+        .process-layout { max-width: 1100px; margin: 0 auto; }
+        .process-head { margin-bottom: 28px; }
+        .process-title { margin: 0; }
+        .process-intro { margin: 12px 0 0; }
+        @media (min-width: 900px) {
+          .process-head {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 48px;
           }
-          .process-head { position: sticky; top: calc(var(--header-h, 80px) + 24px); }
-          .process-intro { margin-bottom: 0; }
+          .process-intro { margin: 0; max-width: 46ch; padding-bottom: 6px; }
         }
         .wz {
           max-width: 1100px;

@@ -13,6 +13,10 @@ import stage4 from '../assets/images/case-study/ofk-stage-04.webp'; // ofk-04.jp
 import render2 from '../assets/images/case-study/ofk-render-02.webp';
 import render3 from '../assets/images/case-study/ofk-render-03.webp';
 import render4 from '../assets/images/case-study/ofk-render-04.webp';
+// Placeholder case studies (swap for real case-study images when ready).
+import klandHero from '../assets/images/brands/render/kland-01.webp';
+import klandLogo from '../assets/images/brands/kland.png';
+import alNawahHero from '../assets/images/processed/al-nawah-full.webp';
 
 // ─────────────────────────────────────────────────────────────────────
 //  CASE STUDY — MOCK-UP / PLACEHOLDER (OFK)
@@ -23,8 +27,10 @@ import render4 from '../assets/images/case-study/ofk-render-04.webp';
 //  real OFK files already in the project — swap any of them freely.
 // ─────────────────────────────────────────────────────────────────────
 const CASE = {
+  id: 'ofk',
   eyebrow: 'Case study',
   title: 'Open Flame Kitchen',
+  hero: { src: heroImg, alt: 'OFK Kuwait dining room render', logo },
   lede: 'An upscale open-flame grill concept at Al Hamra Tower & Mall, Kuwait City, built around a theatrical show kitchen.',
   facts: [
     { label: 'Client', value: 'OFK — Open Flame Kitchen' },
@@ -63,6 +69,65 @@ const CASE = {
   // Set to an object like { text: '…', by: 'Name, role — OFK' } to show a client quote.
   quote: null,
 };
+
+// ─────────────────────────────────────────────────────────────────────
+//  MORE CASE STUDIES — each one is a folder in the stack. Order here =
+//  tab order, left to right; the first one is in front when the page
+//  loads. Anything with `placeholder: true` shows a "placeholder" tag.
+//  Sections left out (stages, clip, results, quote) are simply skipped.
+// ─────────────────────────────────────────────────────────────────────
+const KLAND = {
+  id: 'kland',
+  title: 'K-Land',
+  lede: 'One-line summary of the K-Land project goes here.',
+  ledePlaceholder: true,
+  hero: { src: klandHero, alt: 'K-Land render', logo: klandLogo },
+  facts: [
+    { label: 'Client', value: 'K-Land', placeholder: true },
+    { label: 'Location', value: 'Location', placeholder: true },
+    { label: 'Year', value: 'Year', placeholder: true },
+    { label: 'Scope', value: 'Scope', placeholder: true },
+    { label: 'Tools', value: '3ds Max · Corona', placeholder: true },
+  ],
+  story: [
+    { heading: 'The brief', text: 'What the client asked for.', placeholder: true },
+    { heading: 'The challenge', text: 'What made it difficult.', placeholder: true },
+    { heading: 'The approach', text: 'How it was solved.', placeholder: true },
+  ],
+  stages: [],
+  clip: null,
+  results: [],
+  quote: null,
+  comingSoon: true,
+};
+
+const AL_NAWAH = {
+  id: 'al-nawah',
+  title: 'Al Nawah',
+  lede: 'One-line summary of the Al Nawah project goes here.',
+  ledePlaceholder: true,
+  hero: { src: alNawahHero, alt: 'Al Nawah render', logo: null },
+  facts: [
+    { label: 'Client', value: 'Al Nawah', placeholder: true },
+    { label: 'Location', value: 'Kuwait', placeholder: true },
+    { label: 'Year', value: '2025', placeholder: true },
+    { label: 'Scope', value: 'Interior design · rendering', placeholder: true },
+    { label: 'Tools', value: '3ds Max · Corona', placeholder: true },
+  ],
+  story: [
+    { heading: 'The brief', text: 'What the client asked for.', placeholder: true },
+    { heading: 'The challenge', text: 'What made it difficult.', placeholder: true },
+    { heading: 'The approach', text: 'How it was solved.', placeholder: true },
+  ],
+  stages: [],
+  clip: null,
+  results: [],
+  quote: null,
+  comingSoon: true,
+};
+
+const CASES = [CASE, KLAND, AL_NAWAH];
+
 
 
 function Ph({ show }) {
@@ -154,12 +219,307 @@ function Zoom({ item, onClose }) {
   );
 }
 
+
+// The inside of one folder (everything below the tab).
+function CaseBody({ c, onZoom }) {
+  return (
+    <>
+      <h2 className="cs-sr">{c.title}</h2>
+      <p className="cs-lede">
+        {c.lede}
+        <Ph show={c.ledePlaceholder} />
+      </p>
+
+      {c.hero && (
+        <div className="cs-hero">
+          <img className="cs-hero__img" src={c.hero.src} alt={c.hero.alt} loading="lazy" />
+          {c.hero.logo && <img className="cs-hero__logo" src={c.hero.logo} alt="" aria-hidden="true" />}
+        </div>
+      )}
+
+      {c.facts?.length > 0 && (
+        <dl className="cs-facts">
+          {c.facts.map((f, i) => (
+            <Reveal as="div" className="cs-fact" key={f.label} delay={i * 0.05}>
+              <dt>{f.label}</dt>
+              <dd>
+                {f.value}
+                <Ph show={f.placeholder} />
+              </dd>
+            </Reveal>
+          ))}
+        </dl>
+      )}
+
+      {c.story?.length > 0 && (
+        <div className="cs-story">
+          {c.story.map((s, i) => (
+            <Reveal as="div" key={s.heading} delay={i * 0.08}>
+              <h3>
+                {s.heading}
+                <Ph show={s.placeholder} />
+              </h3>
+              <p>{s.text}</p>
+            </Reveal>
+          ))}
+        </div>
+      )}
+
+      {c.stages?.length > 0 && (
+        <>
+          <RevealLines as="h3" className="cs-sub" text="From concept to final image" />
+          <div className="cs-stages">
+            {c.stages.map((s, i) => (
+              <Reveal as="div" className="cs-stage" key={s.caption} delay={i * 0.08}>
+                <figure>
+                  <button type="button" className="cs-stage__open" onClick={() => onZoom(s)} aria-label={`View ${s.caption} full size`}>
+                    <img src={s.src} alt={s.caption} loading="lazy" />
+                    {s.gallery && <span className="cs-stage__chip">{s.gallery.length} images</span>}
+                  </button>
+                  <figcaption>
+                    {s.caption}
+                    <Ph show={s.placeholder} />
+                  </figcaption>
+                </figure>
+              </Reveal>
+            ))}
+          </div>
+        </>
+      )}
+
+      {(c.clip || c.results?.length > 0 || c.quote) ? (
+        <div className="cs-bottom">
+          {c.clip && (
+            <Reveal as="div">
+              <AutoClip {...c.clip} />
+            </Reveal>
+          )}
+          <Reveal as="div" delay={0.1}>
+            <div className="cs-results">
+              {c.results.map((r) => (
+                <div key={r.label}>
+                  <div className="cs-result__v">
+                    {r.value}
+                    <Ph show={r.placeholder} />
+                  </div>
+                  <div className="cs-result__l">{r.label}</div>
+                </div>
+              ))}
+              {c.quote && (
+                <blockquote className="cs-quote">
+                  <p>“{c.quote.text}”</p>
+                  <cite>{c.quote.by}</cite>
+                </blockquote>
+              )}
+            </div>
+            <div className="cs-cta">
+              <SectionLink to="/#process">Start a project like this</SectionLink>
+            </div>
+          </Reveal>
+        </div>
+      ) : (
+        <>
+          {c.comingSoon && <p className="cs-soon">Full case study coming soon.</p>}
+          <div className="cs-cta">
+            <SectionLink to="/#process">Start a project like this</SectionLink>
+          </div>
+        </>
+      )}
+    </>
+  );
+}
+
+// Curved slope joining a tab to its folder (mirrored for the left side).
+function Ramp({ side }) {
+  return (
+    <svg className={`cs-tab__ramp cs-tab__ramp--${side}`} viewBox="0 0 64 100" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0 0 H10 C34 0 30 100 64 100 H0 Z" />
+    </svg>
+  );
+}
+
+// One row of tabs, all in their fixed slots. Used for the clickable
+// "behind" row and, with only one tab visible, as each folder's own tab.
+function TabRow({ role, onSelect, activeId, ownId, depth }) {
+  const interactive = Boolean(onSelect);
+  return (
+    <div className="cs-tabs" role={role} aria-label={interactive ? 'Case studies' : undefined} aria-hidden={interactive ? undefined : true}>
+      {CASES.map((c, i) => {
+        const d = depth(c.id);
+        const own = c.id === ownId;
+        return (
+          <button
+            key={c.id}
+            type="button"
+            role={interactive ? 'tab' : undefined}
+            id={interactive ? `cs-tab-${c.id}` : undefined}
+            aria-selected={interactive ? c.id === activeId : undefined}
+            aria-controls={interactive ? 'cs-panel' : undefined}
+            tabIndex={interactive ? undefined : -1}
+            data-d={d}
+            className={`cs-tab${d === 0 ? ' is-front' : ''}${own ? ' is-own' : ''}${i === 0 ? ' is-first' : ''}`}
+            onClick={interactive ? () => onSelect(c.id) : undefined}
+          >
+            {i > 0 && <Ramp side="l" />}
+            {/* non-breaking hyphens so "K-Land" never splits across lines */}
+            {c.title.replace(/-/g, '\u2011')}
+            <Ramp side="r" />
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+// A whole folder: its raised tab plus its page.
+function Folder({ c, onZoom, leaving = false, isNew = false, onDone }) {
+  const first = CASES[0].id === c.id;
+  return (
+    <div
+      className={`cs-folder${leaving ? ' cs-folder--leaving' : ''}${isNew ? ' is-new' : ''}`}
+      data-d="0"
+      onAnimationEnd={leaving ? (e) => e.target === e.currentTarget && onDone?.() : undefined}
+      aria-hidden={leaving || undefined}
+    >
+      <TabRow ownId={c.id} depth={(id) => (id === c.id ? 0 : 1)} />
+      <div
+        id={leaving ? undefined : 'cs-panel'}
+        role={leaving ? undefined : 'tabpanel'}
+        aria-labelledby={leaving ? undefined : `cs-tab-${c.id}`}
+        className={`cs-folder__body${first ? ' is-first' : ''}`}
+      >
+        <CaseBody c={c} onZoom={onZoom} />
+      </div>
+    </div>
+  );
+}
+
 export default function CaseStudy() {
   const [zoom, setZoom] = useState(null);
+  const [activeId, setActiveId] = useState(CASES[0].id);
+  // The folder that was in front a moment ago, while it drops away.
+  const [leavingId, setLeavingId] = useState(null);
+  const leaveTimer = useRef(null);
+  useEffect(() => () => clearTimeout(leaveTimer.current), []);
+
+  const select = (id) => {
+    if (id === activeId) return;
+    // Plays even with the OS "reduce motion" setting on, like the rest of
+    // the site (see MotionConfig reducedMotion="never" in main.jsx).
+    setLeavingId(activeId);
+    setActiveId(id);
+    // Fallback in case the browser never reports the animation's end.
+    clearTimeout(leaveTimer.current);
+    leaveTimer.current = setTimeout(() => setLeavingId(null), 1200);
+  };
+
   return (
-    <section className="case-study" id="case-study" aria-label="Case study">
+    <section className="case-study" id="case-study" aria-label="Case studies">
       <style>{`
-        .case-study { padding: 96px var(--page-gutter, 48px) 64px; }
+        .case-study { padding: 96px var(--page-gutter, 48px) 96px; }
+
+        /* ── File-folder group ───────────────────────────────────────────
+           Every case study is a folder. The selected one is in front, and
+           its tab stands one step higher than the others; the folders behind
+           all sit level with each other, showing only their tabs. Tabs keep
+           their places left to right; clicking one brings it to the front.
+           data-d: 0 = front folder, 1 = behind. */
+        .cs-files { --step: 14px; --ramp: 44px; position: relative; isolation: isolate; }
+        .cs-files [data-d='0'] { --cs-folder: #141618; }
+        .cs-files [data-d='1'] { --cs-folder: #1b1e20; }
+
+        /* Layers, bottom to top:
+             1. .cs-back  — every tab, in the "behind" grey (the clickable ones)
+             2. the selected folder — its own raised tab + its page
+             3. the folder being put away — drops down and out of sight
+           Each folder layer repeats the whole tab row with only its own tab
+           visible, so its tab lands exactly over its slot. */
+        .cs-files { overflow: hidden; overflow: clip; }
+        .cs-back { position: absolute; top: 0; left: 0; right: 0; z-index: 1; }
+        /* Clicks pass through a folder's tab strip to the real tabs below;
+           only its page takes clicks. */
+        .cs-folder { position: relative; z-index: 2; pointer-events: none; }
+        .cs-folder__body { pointer-events: auto; }
+        .cs-folder .cs-tab:not(.is-own) { visibility: hidden; }
+        .cs-folder--leaving {
+          position: absolute; top: 0; left: 0; right: 0; z-index: 3;
+          animation: cs-drop 720ms cubic-bezier(0.55, 0, 0.75, 0.2) forwards;
+        }
+        .cs-folder--leaving * { pointer-events: none; }
+        @keyframes cs-drop {
+          from { transform: translateY(0); }
+          to { transform: translateY(105vh); }
+        }
+        /* The newly selected tab rises from the "behind" level into place. */
+        .cs-folder:not(.cs-folder--leaving).is-new .cs-tab.is-own {
+          animation: cs-rise 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+        @keyframes cs-rise { from { transform: translateY(var(--step)); } to { transform: none; } }
+        /* Keep these playing for visitors with "reduce motion" on — overrides
+           the site-wide reduced-motion rule in index.css (owner's choice,
+           same as MotionConfig reducedMotion="never" in main.jsx). */
+        @media (prefers-reduced-motion: reduce) {
+          .cs-files .cs-folder--leaving { animation-duration: 720ms !important; }
+          .cs-files .cs-folder.is-new .cs-tab.is-own { animation-duration: 520ms !important; }
+        }
+
+        .cs-tabs {
+          display: flex;
+          align-items: stretch; /* every tab is as tall as the tallest */
+          padding-right: var(--ramp);
+        }
+        .cs-tab {
+          position: relative;
+          flex: 0 0 auto;
+          display: flex;
+          align-items: flex-end;
+          margin: var(--step) 0 0; /* folders behind sit one step lower */
+          padding: 20px 30px 10px;
+          border: 0;
+          border-radius: 0;
+          background: var(--cs-folder);
+          color: var(--text-dim);
+          font-family: var(--font-display);
+          font-size: clamp(18px, 2vw, 26px);
+          font-weight: 600;
+          letter-spacing: -0.01em;
+          line-height: 1.15;
+          text-align: left;
+          white-space: nowrap;
+          cursor: pointer;
+          transition: color 200ms ease;
+        }
+        .cs-tab + .cs-tab { margin-left: calc(var(--ramp) + 12px); }
+        .cs-tab.is-front { margin-top: 0; }
+        .cs-tab.is-first { border-top-left-radius: 28px; }
+        .cs-tab:hover { color: var(--text); }
+        .cs-tab.is-front { color: var(--text); cursor: default; }
+        .cs-tab:focus-visible { outline: 1px solid var(--text); outline-offset: -6px; }
+        .cs-tab__ramp {
+          position: absolute;
+          top: 0;
+          width: var(--ramp);
+          height: calc(100% + 1px);
+          fill: var(--cs-folder);
+          display: block;
+          pointer-events: none;
+        }
+        .cs-tab__ramp--r { left: calc(100% - 1px); }          /* 1px overlap hides seams */
+        .cs-tab__ramp--l { right: calc(100% - 1px); transform: scaleX(-1); }
+
+        .cs-folder__body {
+          position: relative;
+          background: var(--cs-folder);
+          border-radius: 28px;
+          padding: 30px 40px 48px;
+          margin-top: -1px;
+        }
+        .cs-folder__body.is-first { border-top-left-radius: 0; }
+        .cs-sr {
+          position: absolute; width: 1px; height: 1px; overflow: hidden;
+          clip: rect(0 0 0 0); white-space: nowrap;
+        }
+        .cs-soon { color: var(--text-dim); font-size: 14px; font-style: italic; margin: 28px 0 0; }
         .cs-eyebrow {
           font-family: var(--font-mono);
           font-size: 12px;
@@ -387,90 +747,45 @@ export default function CaseStudy() {
           .cs-bottom { grid-template-columns: 1fr; }
         }
         @media (max-width: 560px) {
-          .case-study { padding: 72px 24px 48px; }
+          .case-study { padding: 56px 16px 56px; }
+          /* Phones: tabs shrink and titles wrap so all tabs fit in one row. */
+          .cs-files { --step: 8px; --ramp: 20px; }
+          .cs-tab { max-width: 38%; padding: 12px 11px 6px; font-size: 13px; white-space: normal; }
+          .cs-tab + .cs-tab { margin-left: calc(var(--ramp) + 4px); }
+          .cs-tab.is-first { border-top-left-radius: 20px; }
+          .cs-folder__body { padding: 22px 20px 32px; border-radius: 20px; }
           .cs-hero { aspect-ratio: 4 / 3; border-radius: 16px; }
           .cs-hero__logo { left: 16px; bottom: 12px; }
           .cs-stages { grid-template-columns: 1fr 1fr; gap: 12px; }
         }
       `}</style>
 
-      <RevealLines as="h2" className="cs-title" text={CASE.title} delay={0.08} />
-      <Reveal as="p" className="cs-lede" delay={0.12}>{CASE.lede}</Reveal>
+      <Reveal as="div" className="cs-files" delay={0.08}>
+        {/* 1. All tabs, "behind" grey — these are the real, clickable tabs. */}
+        <div className="cs-back">
+          <TabRow
+            role="tablist"
+            onSelect={select}
+            activeId={activeId}
+            depth={() => 1}
+          />
+        </div>
 
-      <Reveal as="div" className="cs-hero" delay={0.16}>
-        <img className="cs-hero__img" src={heroImg} alt="OFK Kuwait dining room render" loading="lazy" />
-        <img className="cs-hero__logo" src={logo} alt="" aria-hidden="true" />
+        {/* 2. The selected folder. */}
+        <Folder key={activeId} c={CASES.find((c) => c.id === activeId)} onZoom={setZoom} isNew={Boolean(leavingId)} />
+
+        {/* 3. The folder being put away, dropping out of sight. */}
+        {leavingId && (
+          <Folder
+            key={`leaving-${leavingId}`}
+            c={CASES.find((c) => c.id === leavingId)}
+            onZoom={setZoom}
+            leaving
+            onDone={() => setLeavingId(null)}
+          />
+        )}
       </Reveal>
 
-      <dl className="cs-facts">
-        {CASE.facts.map((f, i) => (
-          <Reveal as="div" className="cs-fact" key={f.label} delay={i * 0.05}>
-            <dt>{f.label}</dt>
-            <dd>
-              {f.value}
-              <Ph show={f.placeholder} />
-            </dd>
-          </Reveal>
-        ))}
-      </dl>
-
-      <div className="cs-story">
-        {CASE.story.map((s, i) => (
-          <Reveal as="div" key={s.heading} delay={i * 0.08}>
-            <h3>
-              {s.heading}
-              <Ph show={s.placeholder} />
-            </h3>
-            <p>{s.text}</p>
-          </Reveal>
-        ))}
-      </div>
-
-      <RevealLines as="h3" className="cs-sub" text="From concept to final image" />
-      <div className="cs-stages">
-        {CASE.stages.map((s, i) => (
-          <Reveal as="div" className="cs-stage" key={s.caption} delay={i * 0.08}>
-            <figure>
-              <button type="button" className="cs-stage__open" onClick={() => setZoom(s)} aria-label={`View ${s.caption} full size`}>
-                <img src={s.src} alt={s.caption} loading="lazy" />
-                {s.gallery && <span className="cs-stage__chip">{s.gallery.length} images</span>}
-              </button>
-              <figcaption>
-                {s.caption}
-                <Ph show={s.placeholder} />
-              </figcaption>
-            </figure>
-          </Reveal>
-        ))}
-      </div>
-
-      <div className="cs-bottom">
-        <Reveal as="div">
-          <AutoClip {...CASE.clip} />
-        </Reveal>
-        <Reveal as="div" delay={0.1}>
-          <div className="cs-results">
-            {CASE.results.map((r) => (
-              <div key={r.label}>
-                <div className="cs-result__v">
-                  {r.value}
-                  <Ph show={r.placeholder} />
-                </div>
-                <div className="cs-result__l">{r.label}</div>
-              </div>
-            ))}
-            {CASE.quote && (
-              <blockquote className="cs-quote">
-                <p>“{CASE.quote.text}”</p>
-                <cite>{CASE.quote.by}</cite>
-              </blockquote>
-            )}
-          </div>
-          <div className="cs-cta">
-            <SectionLink to="/#process">Start a project like this</SectionLink>
-          </div>
-        </Reveal>
-      </div>
       {zoom && <Zoom item={zoom} onClose={() => setZoom(null)} />}
     </section>
   );

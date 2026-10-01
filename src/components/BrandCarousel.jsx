@@ -1,6 +1,7 @@
 import { memo, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import brandDescriptionsRaw from '../data/brand-descriptions.txt?raw';
+import SectionLink from './SectionLink.jsx';
 
 // Brand carousel on the homepage, right under the "Projects gallery"
 // heading: a 3D "coverflow" (centre slide flat, neighbours turned
@@ -541,7 +542,7 @@ function BrandLightbox({ brand, onClose }) {
     <div
       className="brand-lightbox"
       onClick={(e) => {
-        if (!e.target.closest('img, button, .brand-lightbox__title, .brand-lightbox__description p')) onClose();
+        if (!e.target.closest('img, button, a, .brand-lightbox__title, .brand-lightbox__description p')) onClose();
       }}
     >
       <style>{`
@@ -578,7 +579,27 @@ function BrandLightbox({ brand, onClose }) {
         }
         .brand-lightbox__side-thumb:hover { opacity: 1; transform: scale(1.05); }
         .brand-lightbox__side-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
-        .brand-lightbox__text { max-width: 680px; margin-top: 28px; text-align: center; }
+        /* Text block: centred on the page, text inside left-aligned, with the
+           "Start a project like this" button on the right, level with the title. */
+        .brand-lightbox__text {
+          width: 100%; max-width: 900px; margin-top: 28px;
+          display: flex; align-items: flex-start; justify-content: space-between; gap: 40px;
+          text-align: left;
+        }
+        .brand-lightbox__copy { flex: 1 1 auto; min-width: 0; max-width: 680px; }
+        .brand-lightbox__cta {
+          flex: 0 0 auto; margin-top: 4px;
+          display: inline-flex; align-items: center; white-space: nowrap;
+          padding: 12px 22px; border-radius: 10px;
+          border: 1px solid rgba(255, 255, 255, 0.4); background: transparent; color: var(--text);
+          font-family: var(--font-body); font-size: 14px; text-decoration: none;
+          transition: background 180ms ease, color 180ms ease, border-color 180ms ease;
+        }
+        .brand-lightbox__cta:hover { background: var(--text); color: var(--bg); border-color: var(--text); }
+        @media (max-width: 640px) {
+          .brand-lightbox__text { flex-direction: column; gap: 24px; }
+          .brand-lightbox__cta { margin-top: 0; }
+        }
         .brand-lightbox__title {
           font-family: var(--font-display); font-weight: 600;
           font-size: clamp(24px, 3vw, 34px); color: var(--accent); margin: 0 0 12px;
@@ -650,14 +671,19 @@ function BrandLightbox({ brand, onClose }) {
       )}
 
       <div className="brand-lightbox__text">
-        <div className="brand-lightbox__title">{brand.name}</div>
-        {paragraphs.length > 0 && (
-          <div className="brand-lightbox__description">
-            {paragraphs.map((p, i) => (
-              <p key={i}>{p}</p>
-            ))}
-          </div>
-        )}
+        <div className="brand-lightbox__copy">
+          <div className="brand-lightbox__title">{brand.name}</div>
+          {paragraphs.length > 0 && (
+            <div className="brand-lightbox__description">
+              {paragraphs.map((p, i) => (
+                <p key={i}>{p}</p>
+              ))}
+            </div>
+          )}
+        </div>
+        <SectionLink to="/#process" className="brand-lightbox__cta" onClick={onClose}>
+          Start a project like this
+        </SectionLink>
       </div>
     </div>,
     document.body
