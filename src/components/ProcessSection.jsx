@@ -1,8 +1,9 @@
 import { useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'motion/react';
 import workflows from '../data/workflows.js';
-import { OPTIONS } from '../data/wizardOptions.js';
+import { OPTIONS, estimateQuote, formatRange, projectSize } from '../data/wizardOptions.js';
 import { smoothScrollTo } from '../lib/smoothScroll.js';
 import Reveal from './Reveal.jsx';
 import RevealLines from './RevealLines.jsx';
@@ -18,23 +19,31 @@ import CopyButton, { CONTACT_EMAIL } from './CopyButton.jsx';
 //  idea); the summary shows that workflow's stages and links to its full
 //  page.
 //
-//  MOCK-UP: there's no server behind this. "Send brief" opens the
-//  visitor's email app with the brief already written; "Copy" and
-//  "WhatsApp" are there for people without a mail app. All the wording
-//  and options are easy to edit in src/data/wizardOptions.js.
+//  "Send brief" posts to /api/send-brief (Resend). Once it's sent, the
+//  visitor sees an estimated price range (estimateQuote in
+//  src/data/wizardOptions.js — all prices and weights live there) and
+//  gets it in their receipt email; an exact quote follows by email.
+//  "Copy" and "WhatsApp" are there for people who'd rather not use the
+//  form. Wording and options are in src/data/wizardOptions.js.
 // ─────────────────────────────────────────────────────────────────────
 
 const WHATSAPP_NUMBER = '6281337828881';
 
 
-const STEPS = ['Starting point', 'Project', 'Deliverables', 'Timing', 'Your details', 'Summary'];
+const STEPS = ['Starting point', 'Project', 'Timing', 'Your details', 'Your quote'];
+const LAST = STEPS.length - 1;
 
 const EMPTY = {
   starting: null,
+  hasModel: false,
   projectType: null,
+  sizeMode: 'area',
+  area: '',
+  spaces: 4,
+  views: 6,
   scope: null,
-  deliverables: {},
-  stillsCount: 4,
+  animation: false,
+  animSeconds: 30,
   timeline: null,
   budget: null,
   name: '',
@@ -48,15 +57,12 @@ const emailOk = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
 
 function buildBrief(d) {
   const wf = workflows.find((w) => w.slug === d.starting);
-  const dels = OPTIONS.deliverables
-    .filter((x) => d.deliverables[x.id])
-    .map((x) => (x.hasCount ? `${x.label} (about ${d.stillsCount})` : x.label));
   return [
     `Project brief — ${d.name || 'new enquiry'}${d.company ? `, ${d.company}` : ''}`,
     '',
-    `Starting point: ${wf ? wf.buttonLabel.toLowerCase() : '—'}`,
-    `Project type: ${d.projectType || '—'}${d.scope ? ` (${d.scope.toLowerCase()})` : ''}`,
-    `Deliverables: ${dels.length ? dels.join(', ') : '—'}`,
+    `Starting point: ${wf ? wf.buttonLabel.toLowerCase() : '—'}${d.hasModel ? ' + 3D model' : ''}`,
+    `Project type: ${d.projectType || '—'}${projectSize(d) ? `, ${projectSize(d).text}` : ''}${d.scope ? ` (${d.scope.toLowerCase()})` : ''}`,
+    `Animation: ${animText(d)}`,
     `Timeline: ${d.timeline || '—'}`,
     `Budget: ${d.budget || '—'}`,
     '',
@@ -64,6 +70,31 @@ function buildBrief(d) {
     '',
     `Reply to: ${d.email}`,
   ].join('\n');
+}
+
+const animText = (d) => (d.animation ? `Yes, about ${d.animSeconds} s` : 'No');
+
+// The wizard state is sent as-is to the API (and estimateQuote).
+const payload = (d) => d;
+
+function Estimate({ est, compact }) {
+  return (
+    <div className="wz-est">
+      <div className="wz-label" style={{ marginTop: 0 }}>Your instant quote</div>
+      <div className="wz-est__price">{formatRange(est)}</div>
+      <ul className="wz-est__basis">
+        {est.basis.map((b) => (
+          <li key={b}>{b}</li>
+        ))}
+      </ul>
+      {!compact && (
+        <p className="wz-note">
+          Includes design input at every stage and unlimited revisions within the agreed scope. Your instant
+          quote is an estimate; the exact fixed price follows once your drawings and references have been reviewed.
+        </p>
+      )}
+    </div>
+  );
 }
 
 function Choice({ selected, onClick, children, sub, multi }) {
@@ -88,14 +119,16 @@ export default function ProcessSection() {
   const [dir, setDir] = useState(1);
   const [d, setD] = useState(EMPTY);
   const [touched, setTouched] = useState(false);
+  // true after an "edit" from the summary: the step then offers a direct
+  // "Back to summary" instead of making the visitor click through again.
+  const [editing, setEditing] = useState(false);
   const [send, setSend] = useState({ state: 'idle', message: '' }); // idle | sending | sent | error
   const topRef = useRef(null);
   const set = (patch) => setD((prev) => ({ ...prev, ...patch }));
 
   const valid = [
     !!d.starting,
-    !!d.projectType,
-    Object.values(d.deliverables).some(Boolean),
+    !!d.projectType && !!projectSize(d),
     true, // timing is optional
     d.name.trim() !== '' && emailOk(d.email),
     true,
@@ -107,6 +140,8 @@ export default function ProcessSection() {
       return;
     }
     setTouched(false);
+    if (step === LAST && to < LAST) setEditing(true);
+    if (to === LAST) setEditing(false);
     setDir(to > step ? 1 : -1);
     setStep(to);
     // keep the wizard in view if it's taller than the screen on phones
@@ -117,10 +152,15 @@ export default function ProcessSection() {
   };
 
   const brief = useMemo(() => buildBrief(d), [d]);
+  const est = useMemo(() => estimateQuote(payload(d)), [d]);
   const wf = workflows.find((w) => w.slug === d.starting);
   const subject = `Project brief${d.projectType ? ` — ${d.projectType}` : ''}${d.name ? ` (${d.name})` : ''}`;
   const mailto = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(brief)}`;
-  const whatsapp = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(brief)}`;
+  // The WhatsApp message also carries the estimate, so it's in the chat thread.
+  const waText = est
+    ? `${brief}\n\nInstant quote (shown on the site): ${formatRange(est)}\n${est.basis.map((b) => `- ${b}`).join('\n')}`
+    : brief;
+  const whatsapp = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(waText)}`;
 
   // Sends the brief straight from the page via /api/send-brief (a Vercel
   // function → Resend). No email app needed. Only works on Vercel (preview
@@ -131,10 +171,7 @@ export default function ProcessSection() {
       const r = await fetch('/api/send-brief', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...d,
-          deliverables: Object.keys(d.deliverables).filter((k) => d.deliverables[k]),
-        }),
+        body: JSON.stringify(payload(d)),
       });
       const out = await r.json().catch(() => ({}));
       if (r.ok && out.ok) {
@@ -155,7 +192,7 @@ export default function ProcessSection() {
   const progress = ((step + 1) / STEPS.length) * 100;
 
   return (
-    <section className="process-section" id="process" aria-label="Start your project">
+    <section className="process-section" id="process" aria-label="Get an instant quote">
       <style>{`
         .process-section { padding: 64px var(--page-gutter, 48px) 96px; }
         .process-eyebrow {
@@ -393,6 +430,48 @@ export default function ProcessSection() {
           margin-bottom: 20px;
         }
         .wz-done a { color: var(--text); font-size: 14px; }
+        .wz-done { max-width: 640px; }
+        .wz-area { max-width: 240px; margin-top: 14px; }
+        .wz-area__row { display: flex; align-items: center; gap: 10px; color: var(--text); }
+        .wz-area .wz-area__unit { font-size: 15px; color: var(--text-dim); }
+        .wz-area input::-webkit-outer-spin-button,
+        .wz-area input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .wz-area input { -moz-appearance: textfield; }
+        .wz-grid--small { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
+        .wz-est {
+          margin: 24px 0 22px;
+          padding: 20px 22px;
+          border: 1px solid var(--line);
+          border-radius: 14px;
+          background: rgba(255, 255, 255, 0.03);
+        }
+        .wz-est__price {
+          font-family: var(--font-display);
+          font-size: clamp(26px, 3.4vw, 36px);
+          font-weight: 600;
+          letter-spacing: -0.01em;
+        }
+        .wz-est__basis { list-style: none; margin: 10px 0 0; padding: 0; color: var(--text-dim); font-size: 13.5px; }
+        .wz-est__basis li { padding: 2px 0; }
+        /* Dev-only live price panel (npm run dev), never on the live site */
+        .wz-devpanel {
+          position: fixed;
+          right: 16px;
+          bottom: 16px;
+          z-index: 9999;
+          width: min(320px, calc(100vw - 32px));
+          max-height: 70vh;
+          overflow: auto;
+          padding: 14px 16px 4px;
+          border: 1px dashed rgba(255, 255, 255, 0.45);
+          border-radius: 14px;
+          background: rgba(10, 11, 12, 0.94);
+          font-size: 13px;
+        }
+        .wz-devpanel__tag { font-size: 11px; color: var(--text-dim); margin-bottom: 8px; }
+        .wz-devpanel .wz-est { margin: 0 0 10px; padding: 0; border: 0; background: none; }
+        .wz-devpanel .wz-est__price { font-size: 24px; }
+        .wz-devpanel .wz-note { margin: 8px 0 0; font-size: 12px; }
 
         .wz-nav {
           display: flex;
@@ -439,10 +518,10 @@ export default function ProcessSection() {
 
       <div className="process-layout">
       <div className="process-head">
-        <RevealLines as="h2" className="process-title" text="Start your project here" delay={0.08} />
+        <RevealLines as="h2" className="process-title" text="Get an instant quote" delay={0.08} />
         <Reveal as="p" className="process-intro" delay={0.12}>
-          A few quick questions and you'll have a brief ready to send, plus a clear
-          picture of how the project will run.
+          Answer a few quick questions and see your price straight away. Free, no call
+          needed, plus a clear picture of how your project will run.
         </Reveal>
       </div>
 
@@ -455,9 +534,9 @@ export default function ProcessSection() {
                   <button
                     key={name}
                     type="button"
-                    className={i === step ? 'is-current' : i < step ? 'is-done' : ''}
-                    onClick={() => i < step && go(i)}
-                    tabIndex={i < step ? 0 : -1}
+                    className={i === step ? 'is-current' : i < step || editing ? 'is-done' : ''}
+                    onClick={() => (i < step || editing) && i !== step && go(i)}
+                    tabIndex={i < step || editing ? 0 : -1}
                   >
                     {name}
                   </button>
@@ -498,6 +577,12 @@ export default function ProcessSection() {
                         </Choice>
                       ))}
                     </div>
+                    <div className="wz-label">Do you also have a 3D model?</div>
+                    <div className="wz-grid">
+                      <Choice multi selected={d.hasModel} onClick={() => set({ hasModel: !d.hasModel })}>
+                        Yes, SketchUp, Revit, Rhino or similar
+                      </Choice>
+                    </div>
                   </>
                 )}
 
@@ -520,41 +605,72 @@ export default function ProcessSection() {
                         </Choice>
                       ))}
                     </div>
-                  </>
-                )}
-
-                {step === 2 && (
-                  <>
-                    <h3 className="wz-q">What do you need?</h3>
-                    <p className="wz-hint">Select everything that applies.</p>
-                    <div className="wz-grid">
-                      {OPTIONS.deliverables.map((x) => (
-                        <Choice
-                          key={x.id}
-                          multi
-                          selected={!!d.deliverables[x.id]}
-                          onClick={() => set({ deliverables: { ...d.deliverables, [x.id]: !d.deliverables[x.id] } })}
-                        >
-                          {x.label}
+                    <div className="wz-label">How big is it?</div>
+                    <div className="wz-grid wz-grid--3">
+                      {OPTIONS.sizeModes.map((m) => (
+                        <Choice key={m.id} selected={d.sizeMode === m.id} onClick={() => set({ sizeMode: m.id })}>
+                          {m.label}
                         </Choice>
                       ))}
                     </div>
-                    {d.deliverables.stills && (
+                    {d.sizeMode === 'area' ? (
+                      <label className={`wz-field wz-area${touched && !projectSize(d) ? ' is-bad' : ''}`}>
+                        <span className="wz-area__row">
+                          <input
+                            type="number"
+                            inputMode="numeric"
+                            min="10"
+                            placeholder="e.g. 180"
+                            value={d.area}
+                            onChange={(e) => set({ area: e.target.value })}
+                            aria-label="Floor area in square metres"
+                          />
+                          <span className="wz-area__unit">m²</span>
+                        </span>
+                      </label>
+                    ) : (
                       <div className="wz-count">
-                        Roughly how many stills?
-                        <button type="button" aria-label="Fewer" onClick={() => set({ stillsCount: Math.max(1, d.stillsCount - 1) })}>
+                        {d.sizeMode === 'spaces' ? 'How many spaces?' : 'How many final views?'}
+                        <button
+                          type="button"
+                          aria-label="Fewer"
+                          onClick={() => set({ [d.sizeMode]: Math.max(1, d[d.sizeMode] - 1) })}
+                        >
                           −
                         </button>
-                        <strong>{d.stillsCount}</strong>
-                        <button type="button" aria-label="More" onClick={() => set({ stillsCount: Math.min(50, d.stillsCount + 1) })}>
+                        <strong>{d[d.sizeMode]}</strong>
+                        <button
+                          type="button"
+                          aria-label="More"
+                          onClick={() => set({ [d.sizeMode]: Math.min(d.sizeMode === 'spaces' ? 100 : 200, d[d.sizeMode] + 1) })}
+                        >
                           +
                         </button>
                       </div>
                     )}
+                    <p className="wz-note">{OPTIONS.sizeModes.find((m) => m.id === d.sizeMode)?.hint}</p>
+                    <div className="wz-label">Add an animation?</div>
+                    <div className="wz-grid">
+                      <Choice multi selected={d.animation} onClick={() => set({ animation: !d.animation })} sub="Walkthrough or short motion clips.">
+                        Yes, include an animation
+                      </Choice>
+                    </div>
+                    {d.animation && (
+                      <>
+                        <div className="wz-label">Roughly how long is the animation?</div>
+                        <div className="wz-grid wz-grid--small">
+                          {OPTIONS.animationLengths.map((s) => (
+                            <Choice key={s} selected={d.animSeconds === s} onClick={() => set({ animSeconds: s })}>
+                              {s} seconds
+                            </Choice>
+                          ))}
+                        </div>
+                      </>
+                    )}
                   </>
                 )}
 
-                {step === 3 && (
+                {step === 2 && (
                   <>
                     <h3 className="wz-q">Timing and budget</h3>
                     <p className="wz-hint">Rough is fine — both optional. A typical first submission takes 2–3 weeks.</p>
@@ -577,7 +693,7 @@ export default function ProcessSection() {
                   </>
                 )}
 
-                {step === 4 && (
+                {step === 3 && (
                   <>
                     <h3 className="wz-q">Where should the quote go?</h3>
                     <p className="wz-hint">Drawings and references can be sent with the email or after the first reply.</p>
@@ -611,57 +727,70 @@ export default function ProcessSection() {
                   </>
                 )}
 
-                {step === 5 && send.state === 'sent' && (
+                {step === LAST && send.state === 'sent' && (
                   <div className="wz-done">
                     <div className="wz-done__tick" aria-hidden="true">
                       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M5 12.5 10 17.5 19 7" />
                       </svg>
                     </div>
-                    <h3 className="wz-q">Brief sent — thank you, {d.name.split(' ')[0]}</h3>
-                    <p className="wz-hint">
-                      It's with praxio now, and a copy is on its way to {d.email}. You'll get a reply with questions or a
-                      quote. If you have drawings or references, just reply to that email and attach them.
-                    </p>
+                    <h3 className="wz-q">
+                      {send.via === 'whatsapp' ? 'Almost there' : 'Brief sent'} — thank you, {d.name.split(' ')[0]}
+                    </h3>
+                    {send.via === 'whatsapp' ? (
+                      <p className="wz-hint">
+                        Your brief is ready in WhatsApp. Just press send there and it reaches praxio. You'll get a reply
+                        with questions or a quote, and you can share drawings or references in the same chat.
+                      </p>
+                    ) : (
+                      <p className="wz-hint">
+                        It's with praxio now, and a copy is on its way to {d.email}. You'll get a reply with questions or a
+                        quote. If you have drawings or references, just reply to that email and attach them.
+                      </p>
+                    )}
+                    {est && <Estimate est={est} />}
                     {wf && <Link to={`/process/${wf.slug}`}>See how your project will run</Link>}
                   </div>
                 )}
 
-                {step === 5 && send.state !== 'sent' && (
+                {step === LAST && send.state !== 'sent' && (
                   <>
                     <h3 className="wz-q">Your brief is ready</h3>
-                    <p className="wz-hint">Check it over, then send it — you'll get a reply with questions or a quote.</p>
+                    <p className="wz-hint">
+                      {est
+                        ? "Check it over, then send it. Your instant quote appears straight away."
+                        : "Check it over, then send it — you'll get a reply with questions or a quote."}
+                    </p>
                     <div className="wz-summary">
                       <dl className="wz-brief">
                         <dt>Starting</dt>
                         <dd>
                           {wf?.buttonLabel}
+                          {d.hasModel ? ' + 3D model' : ''}
                           <button type="button" onClick={() => go(0)}>edit</button>
                         </dd>
                         <dt>Project</dt>
                         <dd>
                           {d.projectType}
+                          {projectSize(d) ? ` · ${projectSize(d).text}` : ''}
                           {d.scope ? ` · ${d.scope}` : ''}
                           <button type="button" onClick={() => go(1)}>edit</button>
                         </dd>
-                        <dt>Needs</dt>
+                        <dt>Animation</dt>
                         <dd>
-                          {OPTIONS.deliverables
-                            .filter((x) => d.deliverables[x.id])
-                            .map((x) => (x.hasCount ? `${x.label} (${d.stillsCount})` : x.label))
-                            .join(', ')}
-                          <button type="button" onClick={() => go(2)}>edit</button>
+                          {animText(d)}
+                          <button type="button" onClick={() => go(1)}>edit</button>
                         </dd>
                         <dt>Timing</dt>
                         <dd>
                           {d.timeline || 'Not specified'}
                           {d.budget ? ` · ${d.budget}` : ''}
-                          <button type="button" onClick={() => go(3)}>edit</button>
+                          <button type="button" onClick={() => go(2)}>edit</button>
                         </dd>
                         <dt>Contact</dt>
                         <dd>
                           {d.name} · {d.email}
-                          <button type="button" onClick={() => go(4)}>edit</button>
+                          <button type="button" onClick={() => go(3)}>edit</button>
                         </dd>
                       </dl>
                       {wf && (
@@ -694,14 +823,28 @@ export default function ProcessSection() {
                             <span className="wz-spin" aria-hidden="true" /> Sending…
                           </>
                         ) : (
-                          'Send brief'
+                          est ? 'Send brief & see my quote' : 'Send brief'
                         )}
                       </button>
-                      <a className="wz-btn" href={whatsapp} target="_blank" rel="noopener noreferrer">
+                      <a
+                        className="wz-btn"
+                        href={whatsapp}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        // Opening WhatsApp counts as sending: show the done
+                        // screen with the estimate, as after "Send brief".
+                        onClick={() => setSend({ state: 'sent', message: '', via: 'whatsapp' })}
+                      >
                         Send on WhatsApp
                       </a>
                       <CopyButton text={brief} label="Copy the brief" />
                     </div>
+                    {est && (
+                      <p className="wz-note">
+                        Your quote appears here as soon as you send, and is emailed to you. The exact fixed price follows
+                        once praxio has reviewed your drawings and references.
+                      </p>
+                    )}
                     <p className="wz-note">
                       Prefer your own email? <a href={mailto}>Open it in your email app</a> or send it to {CONTACT_EMAIL}{' '}
                       <CopyButton iconOnly />
@@ -711,7 +854,11 @@ export default function ProcessSection() {
 
                 {touched && !valid[step] && (
                   <p className="wz-error" role="alert">
-                    {step === 4 ? 'Please add your name and a valid email.' : 'Choose an option to continue.'}
+                    {step === 3
+                      ? 'Please add your name and a valid email.'
+                      : step === 1
+                        ? 'Choose a project type and add its size (at least 10 m²).'
+                        : 'Choose an option to continue.'}
                   </p>
                 )}
               </motion.div>
@@ -722,9 +869,13 @@ export default function ProcessSection() {
             <button type="button" className="wz-btn wz-btn--ghost" onClick={() => go(step - 1)} disabled={step === 0 || send.state === 'sent'}>
               Back
             </button>
-            {step < STEPS.length - 1 ? (
+            {step < LAST && editing ? (
+              <button type="button" className="wz-btn wz-btn--primary" onClick={() => go(LAST)}>
+                Back to summary
+              </button>
+            ) : step < LAST ? (
               <button type="button" className="wz-btn wz-btn--primary" onClick={() => go(step + 1)}>
-                {step === STEPS.length - 2 ? 'Review brief' : 'Next'}
+                {step === LAST - 1 ? 'See my quote' : 'Next'}
               </button>
             ) : (
               <button
@@ -734,6 +885,7 @@ export default function ProcessSection() {
                   setD(EMPTY);
                   setSend({ state: 'idle', message: '' });
                   go(0);
+                  setEditing(false);
                 }}
               >
                 Start over
@@ -743,6 +895,24 @@ export default function ProcessSection() {
         </div>
       </Reveal>
       </div>
+
+      {import.meta.env.DEV &&
+        createPortal(
+          // Local testing only: live estimate that updates as you click
+          // through the wizard. Edit PRICING in wizardOptions.js and Vite
+          // reloads it instantly. Never rendered on the live site.
+          <div className="wz-devpanel" aria-hidden="true">
+            <div className="wz-devpanel__tag">
+              Dev only · live estimate{est ? ` · priced as ${Math.round(est.area).toLocaleString('en-US')} m²` : ''}
+            </div>
+            {est ? (
+              <Estimate est={est} compact />
+            ) : (
+              <p className="wz-note">Add the project size to see a price.</p>
+            )}
+          </div>,
+          document.body
+        )}
     </section>
   );
 }

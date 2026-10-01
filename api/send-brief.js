@@ -13,7 +13,7 @@
 //    SEND_CONFIRMATION optional — "false" turns off the visitor's receipt email
 // ─────────────────────────────────────────────────────────────────────
 
-import { describeAnswers } from '../src/data/wizardOptions.js';
+import { describeAnswers, estimateQuote, formatRange, projectSize } from '../src/data/wizardOptions.js';
 
 const MAX = { name: 120, email: 200, company: 160, notes: 4000, field: 200 };
 
@@ -80,11 +80,44 @@ export default {
     const from = process.env.BRIEF_FROM || 'praxio <brief@praxio.studio>';
     const project = [
       ['Starting point', d.starting],
-      ['Project type', d.projectType + (d.scope ? ` (${d.scope})` : '')],
-      ['Deliverables', d.deliverables],
+      ['Project type', d.projectType + (d.size ? `, ${d.size}` : '') + (d.scope ? ` (${d.scope})` : '')],
+      ['Animation', d.animation],
       ['Timeline', d.timeline],
       ['Budget', d.budget],
     ];
+
+    // Same estimate the visitor sees on the page (computed here from the
+    // validated answers, so it can't be tampered with).
+    const est = estimateQuote(body);
+    const estRows = est
+      ? [
+          ['Estimate', formatRange(est)],
+          ['Based on', est.basis.join('; ')],
+        ]
+      : [];
+    const estNote =
+      'Includes design input at every stage and unlimited revisions within the agreed scope. Your instant quote is an estimate; the exact fixed price follows once your drawings and references have been reviewed.';
+
+    // Machine-readable copy of the brief, used to fill the project agreement
+    // template exactly (see the "brief to agreement" skill). Only validated values.
+    const size = projectSize(body);
+    const briefData = {
+      v: 1,
+      receivedAt: new Date().toISOString(),
+      client: { name: d.name, email: d.email, company: d.company },
+      project: {
+        type: d.projectType,
+        scope: d.scope,
+        size: size ? { mode: size.mode, text: size.text, areaM2: size.area } : null,
+        starting: d.starting,
+        animation: d.animation,
+        timeline: d.timeline,
+        budget: d.budget,
+      },
+      estimate: est ? { low: est.low, high: est.high, currency: 'USD', basis: est.basis } : null,
+      notes: d.notes,
+    };
+    const dataBlock = `----- BRIEF DATA (for agreement) -----\n${JSON.stringify(briefData, null, 2)}\n----- END BRIEF DATA -----`;
 
     const text = [
       `New project brief from ${d.name}${d.company ? `, ${d.company}` : ''}`,
@@ -92,16 +125,21 @@ export default {
       '',
       ...project.filter(([, v]) => v).map(([k, v]) => `${k}: ${v}`),
       '',
+      ...(est ? [...estRows.filter(([, v]) => v).map(([k, v]) => `${k}: ${v}`), '(shown to the client)', ''] : []),
       `Notes:\n${d.notes || '—'}`,
+      '',
+      dataBlock,
     ].join('\n');
 
     const html = `<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.5;color:#111;max-width:600px">
       <h2 style="font-size:18px;margin:0 0 4px">New project brief</h2>
       <p style="margin:0 0 16px;color:#555">${esc(d.name)}${d.company ? `, ${esc(d.company)}` : ''} · <a href="mailto:${esc(d.email)}">${esc(d.email)}</a></p>
       <table style="border-collapse:collapse">${rows(project)}</table>
+      ${est ? `<h3 style="font-size:14px;margin:20px 0 6px">Estimate shown to the client</h3><table style="border-collapse:collapse">${rows(estRows)}</table>` : ''}
       <h3 style="font-size:14px;margin:20px 0 6px">Notes</h3>
       <p style="margin:0;white-space:pre-wrap">${esc(d.notes || '—')}</p>
       <p style="margin:24px 0 0;color:#888;font-size:12px">Sent from the "Start your project" form on praxio.studio. Hit reply to answer ${esc(d.name)} directly.</p>
+      <pre style="margin:20px 0 0;padding:10px;background:#f4f4f4;color:#555;font-size:11px;white-space:pre-wrap">${esc(dataBlock)}</pre>
     </div>`;
 
     try {
@@ -125,6 +163,14 @@ export default {
       const receiptHtml = `<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.5;color:#111;max-width:600px">
         <p style="margin:0 0 12px">Thanks — your project brief has reached praxio. You'll get a reply with questions or a quote, usually within a couple of working days.</p>
         <table style="border-collapse:collapse">${rows(project)}</table>
+        ${
+          est
+            ? `<h3 style="font-size:14px;margin:20px 0 6px">Your instant quote</h3>
+        <p style="margin:0 0 6px;font-size:20px;font-weight:bold">${esc(formatRange(est))}</p>
+        <table style="border-collapse:collapse">${rows(estRows.slice(1))}</table>
+        <p style="margin:8px 0 0;color:#555">${esc(estNote)}</p>`
+            : ''
+        }
         <p style="margin:20px 0 0">If you have drawings or reference images, just reply to this email and attach them.</p>
         <p style="margin:16px 0 0;color:#888;font-size:12px">praxio · architectural visualisation · praxio.studio</p>
       </div>`;
@@ -138,7 +184,15 @@ export default {
           text: `Thanks — your project brief has reached praxio. You'll get a reply with questions or a quote.\n\n${project
             .filter(([, v]) => v)
             .map(([k, v]) => `${k}: ${v}`)
-            .join('\n')}\n\nIf you have drawings or reference images, just reply to this email and attach them.`,
+            .join('\n')}${
+            est
+              ? `\n\nYour instant quote: ${formatRange(est)}\n${estRows
+                  .slice(1)
+                  .filter(([, v]) => v)
+                  .map(([k, v]) => `${k}: ${v}`)
+                  .join('\n')}\n${estNote}`
+              : ''
+          }\n\nIf you have drawings or reference images, just reply to this email and attach them.`,
         });
       } catch (err) {
         // The brief itself already went through — don't fail the request.

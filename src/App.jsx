@@ -20,6 +20,7 @@ import ProjectDetail from './components/ProjectDetail.jsx';
 import HeroBanner from './components/HeroBanner.jsx';
 import WorkflowPage from './components/WorkflowPage.jsx';
 import ProcessSection from './components/ProcessSection.jsx';
+import Privacy from './components/Privacy.jsx';
 import BrandCarousel from './components/BrandCarousel.jsx';
 import clips from './data/clips.js';
 
@@ -71,9 +72,9 @@ function ScrollToTop() {
 // which have no hero, so they're always reachable.
 const NAV_LINKS = [
   { id: 'gallery', label: 'Portfolio' },
-  { id: 'case-study', label: 'Case study' },
+  { id: 'case-study', label: 'Case studies' },
   { id: 'services', label: 'Services' },
-  { id: 'process', label: 'Start a project' },
+  { id: 'process', label: 'Instant quote' },
 ];
 
 // Phone-width menu: everything (section links, About, Contact) folded
@@ -229,6 +230,17 @@ function HidingHeader() {
   );
 }
 
+// Keeps <link rel="canonical"> pointing at the page being viewed, so each
+// project page is indexed as itself rather than as a copy of the homepage.
+function CanonicalLink() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    const link = document.querySelector('link[rel="canonical"]');
+    if (link) link.href = `https://www.praxio.studio${pathname}`;
+  }, [pathname]);
+  return null;
+}
+
 function Home() {
   return (
     <>
@@ -241,7 +253,7 @@ function Home() {
             </>
           }
         >
-          <RevealLines as="h2" className="hero__headline" text="Practical design solutions." delay={0.15} />
+          <RevealLines as="h1" className="hero__headline" text="Practical design solutions." delay={0.15} />
           <RevealLines
             as="p"
             className="hero__subtext"
@@ -249,6 +261,9 @@ function Home() {
             delay={0.4}
             stagger={0.06}
           />
+          <SectionLink to="/#process" className="hero__cta hero__quote">
+            Free instant quote in 1 minute
+          </SectionLink>
         </HeroBanner>
 
         <div id="gallery" className="gallery-section">
@@ -548,10 +563,12 @@ export default function App() {
       <HidingHeader />
 
       <div className="route-content">
+        <CanonicalLink />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/project/:slug" element={<ProjectDetail />} />
           <Route path="/process/:slug" element={<WorkflowPage />} />
+          <Route path="/privacy" element={<Privacy />} />
         </Routes>
       </div>
     </div>

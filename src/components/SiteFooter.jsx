@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import Reveal from './Reveal.jsx';
 import { EmailIcon, WhatsAppIcon } from './ContactIcons.jsx';
 import CopyButton, { CONTACT_EMAIL } from './CopyButton.jsx';
@@ -59,6 +60,8 @@ export default function SiteFooter() {
         .footer-contact-link svg {
           flex: 0 0 auto;
         }
+        .footer-bottom a.footer-privacy { color: inherit; }
+        .footer-bottom a.footer-privacy:hover { color: var(--text); }
         .footer-bottom {
           font-family: var(--font-mono);
           font-size: 11px;
@@ -101,7 +104,8 @@ export default function SiteFooter() {
       {/* Plain (not a scroll-reveal): it's the last thing on the page, so it
           can never scroll far enough up to trigger a reveal animation. */}
       <div className="footer-bottom">
-        © {new Date().getFullYear()} praxio. All rights reserved.
+        © {new Date().getFullYear()} praxio. All rights reserved. ·{' '}
+        <Link to="/privacy" className="footer-privacy">Privacy</Link>
       </div>
     </footer>
   );

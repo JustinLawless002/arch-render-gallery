@@ -378,7 +378,7 @@ export default function ProjectDetail() {
                 )}
 
                 <SectionLink to="/#process" className="project-detail-cta">
-                  Start a project like this
+                  Get a quote for a project like this
                 </SectionLink>
               </div>
             </div>

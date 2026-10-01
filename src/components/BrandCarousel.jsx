@@ -664,7 +664,7 @@ function BrandLightbox({ brand, onClose }) {
         <div className="brand-lightbox__mobile-thumbs">
           {renders.map((src, i) => (
             <button key={src} type="button" className={i === index ? 'is-active' : ''} onClick={() => setIndex(i)} aria-label={`Image ${i + 1}`}>
-              <img src={src} alt="" aria-hidden="true" />
+              <img src={src} alt={`${brand.name} image ${i + 1}`} />
             </button>
           ))}
         </div>
@@ -682,7 +682,7 @@ function BrandLightbox({ brand, onClose }) {
           )}
         </div>
         <SectionLink to="/#process" className="brand-lightbox__cta" onClick={onClose}>
-          Start a project like this
+          Get a quote for a project like this
         </SectionLink>
       </div>
     </div>,

@@ -208,7 +208,7 @@ function Zoom({ item, onClose }) {
         <div className="cs-zoom__thumbs" onClick={stop}>
           {images.map((src, n) => (
             <button key={src} type="button" className={n === i ? 'is-active' : ''} onClick={() => setI(n)} aria-label={`Image ${n + 1}`}>
-              <img src={src} alt="" />
+              <img src={src} alt={`${item.caption} ${n + 1}`} />
             </button>
           ))}
         </div>
@@ -233,7 +233,7 @@ function CaseBody({ c, onZoom }) {
       {c.hero && (
         <div className="cs-hero">
           <img className="cs-hero__img" src={c.hero.src} alt={c.hero.alt} loading="lazy" />
-          {c.hero.logo && <img className="cs-hero__logo" src={c.hero.logo} alt="" aria-hidden="true" />}
+          {c.hero.logo && <img className="cs-hero__logo" src={c.hero.logo} alt={`${c.title} logo`} />}
         </div>
       )}
 
@@ -313,7 +313,7 @@ function CaseBody({ c, onZoom }) {
               )}
             </div>
             <div className="cs-cta">
-              <SectionLink to="/#process">Start a project like this</SectionLink>
+              <SectionLink to="/#process">Get a quote for a project like this</SectionLink>
             </div>
           </Reveal>
         </div>
@@ -321,7 +321,7 @@ function CaseBody({ c, onZoom }) {
         <>
           {c.comingSoon && <p className="cs-soon">Full case study coming soon.</p>}
           <div className="cs-cta">
-            <SectionLink to="/#process">Start a project like this</SectionLink>
+            <SectionLink to="/#process">Get a quote for a project like this</SectionLink>
           </div>
         </>
       )}

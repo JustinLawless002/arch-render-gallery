@@ -1,6 +1,21 @@
 import Reveal from './Reveal.jsx';
 import RevealLines from './RevealLines.jsx';
 
+// One quote either side of the Background text (stacked under it on narrow screens).
+const QUOTE_LEFT = { text: 'Good design is the result of a process.', by: 'Paul Rand' };
+const QUOTE_RIGHT = { text: 'Inspiration exists, but it has to find you working.', by: 'Pablo Picasso' };
+
+function Quote({ q, delay }) {
+  return (
+    <Reveal as="aside" className="about-side" delay={delay}>
+      <blockquote className="about-quote">
+        <p>“{q.text}”</p>
+        <cite>{q.by}</cite>
+      </blockquote>
+    </Reveal>
+  );
+}
+
 export default function About() {
   return (
     <section className="about-section" id="about" aria-label="About">
@@ -39,11 +54,51 @@ export default function About() {
         .about-body p:last-child {
           margin-bottom: 0;
         }
+        /* Three columns on wide screens: quote · text · quote. */
+        .about-layout {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) minmax(0, 720px) minmax(0, 1fr);
+          gap: 56px;
+          align-items: center;
+          max-width: 1280px;
+          margin: 0 auto;
+        }
+        .about-layout .about-inner { margin: 0; }
+        .about-side { max-width: 260px; }
+        .about-side:first-child { justify-self: end; }
+        .about-side:last-child { justify-self: start; }
+        @media (max-width: 1100px) {
+          .about-layout { grid-template-columns: minmax(0, 720px); justify-content: center; gap: 28px; }
+          .about-layout .about-inner { order: -1; }
+          .about-side, .about-side:first-child, .about-side:last-child { justify-self: start; max-width: none; }
+          .about-side:first-child { margin-top: 16px; }
+        }
+        .about-quote {
+          margin: 0;
+          padding-left: 18px;
+          border-left: 1px solid var(--line);
+        }
+        .about-quote p {
+          margin: 0;
+          font-family: var(--font-display);
+          font-size: clamp(17px, 1.8vw, 20px);
+          line-height: 1.4;
+          color: var(--text);
+        }
+        .about-quote cite {
+          display: block;
+          margin-top: 6px;
+          font-style: normal;
+          font-size: 13px;
+          color: var(--text-dim);
+        }
         @media (max-width: 560px) {
           .about-section { padding: 72px 24px 48px; }
         }
       `}</style>
 
+      <div className="about-layout">
+      <Quote q={QUOTE_LEFT} delay={0.1} />
       <div className="about-inner">
         <RevealLines as="h2" className="about-title" text="Background" delay={0.08} />
         <div className="about-body">
@@ -51,15 +106,17 @@ export default function About() {
             as="p"
             delay={0.12}
             stagger={0.03}
-            text="After studying 2D animation and 3D modelling, I started my career at a AAA video game studio. That experience taught me the importance of profesionalism in my craft and that good design comes from solving problems through practice and never giving up until it works."
+            text="I studied 2D animation and 3D modelling and began a career at a AAA video game studio. That experience taught me the importance of having professionalism in my work and that good design comes from solving problems through practice."
           />
           <RevealLines
             as="p"
             delay={0.18}
             stagger={0.03}
-            text="I later brought drawing and 3D organic design skills into the architecture and archviz industry, where I've now worked for more than 18 years. My specialty is rapid prototyping of designs and delivering detailed, descriptive visuals and technical drawings. With the arrival of AI-assisted workflows, I've been able to deliver even better results, faster and therefore at lower costs."
+            text="I later brought the tools of drawing, digital painting and 3D sculpting with me into exploring architecture and archviz. I have now worked for more than 18 years at creating all kinds of images that have been made reality. My specialty is rapid prototyping of designs and delivering detailed, descriptive visuals and technical drawings. With the arrival of AI-assisted workflows I have been able to deliver even better results, faster and at lower costs."
           />
         </div>
+      </div>
+      <Quote q={QUOTE_RIGHT} delay={0.2} />
       </div>
     </section>
   );

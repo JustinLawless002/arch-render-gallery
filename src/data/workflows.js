@@ -3,8 +3,8 @@
 const workflows = [
   {
     slug: 'plans',
-    buttonLabel: 'With architectural plans',
-    title: 'Starting from architectural plans',
+    buttonLabel: 'With a full brief',
+    title: 'Starting from a full brief',
     images: ['/process/wf1-01.jpeg', '/process/wf1-02.jpeg', '/process/wf1-03.jpeg'],
     steps: [
       {

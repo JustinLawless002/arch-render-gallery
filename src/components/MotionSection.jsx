@@ -78,8 +78,7 @@ function ClipCard({ clip, index, onExpand }) {
             instead of the browser's own abrupt poster→frame swap. */}
         <img
           src={clip.poster}
-          alt=""
-          aria-hidden="true"
+          alt={clip.title}
           className="clip-poster"
           style={{ opacity: showPoster ? 1 : 0 }}
         />

@@ -130,11 +130,6 @@ export default function Services() {
           padding: 28px 28px 30px;
           border-radius: 20px;
           background: linear-gradient(160deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.015));
-          transition: background 300ms ease, transform 400ms cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .service-card:hover {
-          background: linear-gradient(160deg, rgba(255, 255, 255, 0.085), rgba(255, 255, 255, 0.025));
-          transform: translateY(-3px);
         }
         .service-card__top {
           display: flex;
