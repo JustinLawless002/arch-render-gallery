@@ -15,6 +15,11 @@ import render3 from '../assets/images/case-study/ofk-render-03.webp';
 import render4 from '../assets/images/case-study/ofk-render-04.webp';
 // Placeholder case studies (swap for real case-study images when ready).
 import klandHero from '../assets/images/brands/render/kland-01.webp';
+import klandR2 from '../assets/images/brands/render/kland-02.webp';
+import klandR3 from '../assets/images/brands/render/kland-03.webp';
+import klandR4 from '../assets/images/brands/render/kland-04.webp';
+import klandBrief from '../assets/images/case-study/kland-brief.webp'; // masterplan + zoning board
+import klandMood from '../assets/images/case-study/kland-moodboard.webp'; // play & dining references
 import klandLogo from '../assets/images/brands/kland.png';
 import alNawahHero from '../assets/images/processed/al-nawah-full.webp';
 
@@ -61,6 +66,7 @@ const CASE = {
     { src: stage4, caption: 'Final render', gallery: [heroImg, render2, render3, render4] },
   ],
   clip: { src: '/videos/OFK-Habra.mp4', poster: '/videos/posters/OFK-Habra.jpg' },
+  map: 'https://maps.app.goo.gl/pv9h8wAK3CAhoAHj9', // Google Maps link on the Location fact
   results: [
     { value: '20+', label: 'final stills delivered' },
     { value: '±35 wks', label: 'from brief to sign-off' },
@@ -79,26 +85,42 @@ const CASE = {
 const KLAND = {
   id: 'kland',
   title: 'K-Land',
-  lede: 'One-line summary of the K-Land project goes here.',
-  ledePlaceholder: true,
+  lede: 'A large seasonal family entertainment, dining and play destination, with soft play zones, themed areas, cafés and restaurants.',
   hero: { src: klandHero, alt: 'K-Land render', logo: klandLogo },
   facts: [
-    { label: 'Client', value: 'K-Land', placeholder: true },
-    { label: 'Location', value: 'Location', placeholder: true },
-    { label: 'Year', value: 'Year', placeholder: true },
-    { label: 'Scope', value: 'Scope', placeholder: true },
-    { label: 'Tools', value: '3ds Max · Corona', placeholder: true },
+    { label: 'Client', value: 'K-Land' },
+    { label: 'Location', value: 'Blajat Beach, Salmiya, Kuwait' },
+    { label: 'Year', value: '2024' },
+    { label: 'Scope', value: 'Design · rendering' },
+    { label: 'Tools', value: '3ds Max · Corona' },
   ],
   story: [
-    { heading: 'The brief', text: 'What the client asked for.', placeholder: true },
-    { heading: 'The challenge', text: 'What made it difficult.', placeholder: true },
-    { heading: 'The approach', text: 'How it was solved.', placeholder: true },
+    {
+      heading: 'The brief',
+      text: 'Create a multi-zoned beachside family resort spanning 9,200 m², focused on family-friendly shopping, dining and play areas.',
+    },
+    {
+      heading: 'The challenge',
+      text: 'Keeping a handle on revisions across multiple areas at the same time, and adding seasonal versions of some areas, meant the project scope changed quite a lot.',
+    },
+    {
+      heading: 'The approach',
+      text: 'Breaking the project into smaller zones and versioning it by season kept it much more manageable. For the masterplan aerial shots, a less detailed version of the model was used.',
+    },
   ],
-  stages: [],
-  clip: null,
-  results: [],
+  stages: [
+    { src: klandBrief, caption: 'Brief: masterplan & zoning' },
+    { src: klandMood, caption: 'Challenge: play & dining moodboard' },
+    { src: klandR2, caption: 'Approach: zoned, seasonal renders', gallery: [klandHero, klandR2, klandR3, klandR4] },
+  ],
+  clip: { src: '/videos/kland.mp4', poster: '/videos/posters/kland.jpg' },
+  map: 'https://maps.app.goo.gl/YtXYW64DFZaGChT58',
+  results: [
+    { value: '9,200 m²', label: 'beachside site' },
+    { value: '5', label: 'zones, each with its own revisions' },
+    { value: '±48 wks', label: 'from brief to sign-off' },
+  ],
   quote: null,
-  comingSoon: true,
 };
 
 const AL_NAWAH = {
@@ -126,7 +148,8 @@ const AL_NAWAH = {
   comingSoon: true,
 };
 
-const CASES = [CASE, KLAND, AL_NAWAH];
+// Al Nawah is hidden for now — add AL_NAWAH back to this list to show it.
+const CASES = [CASE, KLAND];
 
 
 
@@ -136,6 +159,16 @@ function Ph({ show }) {
 
 // Plays only while on screen, so it doesn't eat bandwidth/battery further
 // down the page. Muted + playsInline so phones allow autoplay.
+// Small map-pin icon for the Location fact (links to Google Maps).
+function MapPin() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z" />
+      <circle cx="12" cy="9.5" r="2.5" />
+    </svg>
+  );
+}
+
 function AutoClip({ src, poster }) {
   const ref = useRef(null);
   useEffect(() => {
@@ -243,7 +276,14 @@ function CaseBody({ c, onZoom }) {
             <Reveal as="div" className="cs-fact" key={f.label} delay={i * 0.05}>
               <dt>{f.label}</dt>
               <dd>
-                {f.value}
+                {f.label === 'Location' && c.map ? (
+                  <a className="cs-fact__map" href={c.map} target="_blank" rel="noopener noreferrer" aria-label={`${f.value} — open in Google Maps`}>
+                    <MapPin />
+                    {f.value}
+                  </a>
+                ) : (
+                  f.value
+                )}
                 <Ph show={f.placeholder} />
               </dd>
             </Reveal>
@@ -268,7 +308,7 @@ function CaseBody({ c, onZoom }) {
       {c.stages?.length > 0 && (
         <>
           <RevealLines as="h3" className="cs-sub" text="From concept to final image" />
-          <div className="cs-stages">
+          <div className={`cs-stages${c.stages.length === 3 ? ' cs-stages--3' : ''}`}>
             {c.stages.map((s, i) => (
               <Reveal as="div" className="cs-stage" key={s.caption} delay={i * 0.08}>
                 <figure>
@@ -604,6 +644,17 @@ export default function CaseStudy() {
           margin: 0 0 24px;
         }
         .cs-stages { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 72px; }
+        .cs-stages--3 { grid-template-columns: repeat(3, 1fr); }
+        .cs-fact__map {
+          display: inline-flex;
+          align-items: flex-start;
+          gap: 6px;
+          color: inherit;
+          text-decoration: none;
+        }
+        .cs-fact__map svg { flex: 0 0 auto; margin-top: 2px; opacity: 0.8; transition: opacity 180ms ease; }
+        .cs-fact__map:hover { text-decoration: underline; text-underline-offset: 3px; }
+        .cs-fact__map:hover svg { opacity: 1; }
         .cs-stage figure { margin: 0; }
         .cs-stage img {
           width: 100%;

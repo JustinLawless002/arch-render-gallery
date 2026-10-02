@@ -241,6 +241,10 @@ function CanonicalLink() {
   return null;
 }
 
+// The 6-image grid under the brand carousel. Hidden while it's being
+// polished — set to true to show it again. Project pages still work.
+const SHOW_GALLERY_GRID = false;
+
 function Home() {
   return (
     <>
@@ -269,7 +273,7 @@ function Home() {
         <div id="gallery" className="gallery-section">
           <RevealLines as="h2" className="gallery-section-title" text="Projects gallery" />
           <BrandCarousel />
-          <Gallery />
+          {SHOW_GALLERY_GRID && <Gallery />}
         </div>
 
         <CaseStudy />
