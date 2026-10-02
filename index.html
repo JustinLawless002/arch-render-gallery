@@ -36,11 +36,33 @@
         "url": "https://www.praxio.studio/",
         "logo": "https://www.praxio.studio/icon-512.png",
         "image": "https://www.praxio.studio/og-image.jpg",
-        "description": "Architectural visualisation and interior design studio: still renders, animated walkthroughs and 3D concept design.",
+        "description": "Architectural visualisation and interior design studio in Bali, Indonesia: still renders, animated walkthroughs, 3D modelling, concept design and technical drawings for residential, hospitality and commercial projects worldwide.",
         "email": "justin@praxio.studio",
-        "founder": { "@type": "Person", "name": "Justin Lawless" },
+        "telephone": "+6281337828881",
+        "founder": {
+          "@type": "Person",
+          "name": "Justin Lawless",
+          "jobTitle": "Founder, architectural visualisation artist and designer",
+          "description": "18+ years in architecture and archviz; background in 2D animation, 3D modelling and AAA video game production."
+        },
         "address": { "@type": "PostalAddress", "addressRegion": "Bali", "addressCountry": "ID" },
         "areaServed": "Worldwide",
+        "knowsAbout": [
+          "Architectural visualisation", "3D rendering", "Interior design", "Animated walkthroughs",
+          "3ds Max", "Corona Renderer", "AI-assisted design workflows", "Villa design", "Restaurant and hospitality interiors"
+        ],
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "praxio services",
+          "itemListElement": [
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Still renders (architectural and interior)" } },
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Animated walkthroughs" } },
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "3D modelling from CAD, plans, sketches or photos" } },
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "AI-assisted concept design" } },
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Interior design mood boards and material selection" } },
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Floorplans, elevations and sections" } }
+          ]
+        },
         "sameAs": ["https://www.instagram.com/praxiodesign"]
       }
     </script>
@@ -53,6 +75,19 @@
     <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <!-- Text-only fallback (see #root below): hidden while the app loads,
+         fades in only if the app hasn't started after 3 s. -->
+    <style>
+      .seo-fallback {
+        max-width: 720px; margin: 0 auto; padding: 64px 24px;
+        background: #0d0f10; color: #85817a;
+        font: 16px/1.7 Inter, system-ui, sans-serif;
+        opacity: 0; animation: seo-fallback-in 0.4s ease 3s forwards;
+      }
+      .seo-fallback h1, .seo-fallback h2 { color: #f1efe9; font-family: Syne, sans-serif; font-weight: 600; }
+      .seo-fallback a { color: #f1efe9; }
+      @keyframes seo-fallback-in { to { opacity: 1; } }
+    </style>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600&family=Inter:wght@400;500&display=swap"
@@ -60,7 +95,53 @@
     />
   </head>
   <body>
-    <div id="root"></div>
+    <!-- Plain-text version of the site for search engines and AI assistants
+         (ChatGPT, Claude, Perplexity, Google AI Overviews), which often read
+         the raw HTML without running JavaScript. React replaces everything
+         inside #root as soon as the app starts, so visitors never see this;
+         it only fades in if JavaScript is off or fails. Keep it in step with
+         the real site text when that changes. -->
+    <div id="root">
+      <main class="seo-fallback">
+        <h1>praxio — architectural visualisation &amp; design studio in Bali</h1>
+        <p>Practical design solutions. praxio is the studio of Justin Lawless, an architectural visualisation artist and designer based in Bali, Indonesia, working with architects, developers, interior designers and private clients worldwide. Still renders, animated walkthroughs, 3D modelling and concept design, with design input at every stage. Get a free instant quote in 1 minute.</p>
+
+        <h2>What I offer</h2>
+        <ul>
+          <li><strong>Visualisation:</strong> still renders, animated walkthroughs, and full project presentations for print or for PowerPoint video display.</li>
+          <li><strong>3D modelling:</strong> 3D modelling from CAD / plans, sketches or photos; organic or parametric 3D modelling.</li>
+          <li><strong>Design:</strong> AI-assisted iterative concept designs, masterplan development for large projects, interior design mood boards and material selection.</li>
+          <li><strong>Drawings &amp; sourcing:</strong> detailed floorplans, elevations and sections; sourcing for materials, furniture and fittings.</li>
+          <li><strong>Revisions at every stage:</strong> unlimited revisions within the agreed scope, with feedback at concept &amp; layout, materials &amp; look, lighting &amp; atmosphere, and final images.</li>
+        </ul>
+
+        <h2>How a project starts</h2>
+        <p>Projects can start from a full brief (plans or CAD), from reference images, or from just an idea. Concept design and 3D modelling are included on request. The online instant quote gives a price range in about a minute; the exact fixed price follows after review.</p>
+
+        <h2>Selected projects</h2>
+        <ul>
+          <li><strong>Open Flame Kitchen (OFK), Al Hamra Tower &amp; Mall, Kuwait City, 2022</strong> — interior design and rendering for a 540 m² open-flame grill restaurant built around a theatrical show kitchen, with a parametric curved ceiling and a sculpted VIP room. 20+ final stills. 3ds Max, Corona.</li>
+          <li><strong>Al Nawah, Kuwait, 2025</strong> — large interior design project over three floors and a basement in a clean, modern, elegant style.</li>
+          <li><strong>Adel Villa, Kuwait, 2025</strong> — full interior redesign of a residential villa; the exterior was modelled from reference.</li>
+          <li><strong>Atelier, Jakarta, 2026</strong> — concept boutique for a batik shop, developed from simple drawings with AI-assisted workflows.</li>
+          <li><strong>Junichi Villa, Bogor, 2026</strong> — tropical modern Japanese villa concept.</li>
+          <li><strong>The Point, Jakarta, 2026</strong> — mid-to-high-end apartment development concept mixing mid-century and modern styles.</li>
+          <li><strong>Tamdeen Square, Kuwait, 2022</strong> — outdoor restaurant complex in rustic metal, reclaimed brick and corrugated roofing.</li>
+          <li>Also: the K-Land resort and several Chocomelt locations (Bahrain).</li>
+        </ul>
+
+        <h2>Background</h2>
+        <p>Justin studied 2D animation and 3D modelling and began his career at a AAA video game studio, then brought drawing, digital painting and 3D sculpting into architecture and archviz. He has worked for more than 18 years creating images of designs that have been built. His specialty is rapid prototyping of designs and detailed, descriptive visuals and technical drawings, now with AI-assisted workflows for faster results at lower cost. Tools: 3ds Max, Corona Renderer and AI-assisted workflows.</p>
+
+        <h2>What clients say</h2>
+        <blockquote><p>Justin delivered exceptional visuals that allowed our clients to feel like their expectations were being met at every step of the way.</p><cite>Chaing Chen</cite></blockquote>
+        <blockquote><p>The end result was as close to and in some cases even better than what we could have imagined.</p><cite>Susan Nichols</cite></blockquote>
+        <blockquote><p>He showed endless enthusiasm, energy and a good eye for improving designs by seeing and solving them quickly.</p><cite>Heinz Pahl-Kaupp</cite></blockquote>
+
+        <h2>Contact</h2>
+        <p>Email <a href="mailto:justin@praxio.studio">justin@praxio.studio</a> · WhatsApp <a href="https://wa.me/6281337828881">+62 813 3782 8881</a> · Instagram <a href="https://www.instagram.com/praxiodesign">@praxiodesign</a> · CV Praxio Studio, Bali, Indonesia.</p>
+      </main>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

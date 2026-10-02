@@ -1,0 +1,22 @@
+# praxio.studio — everyone (search engines and AI assistants) is welcome.
+User-agent: *
+Allow: /
+Disallow: /api/
+
+# AI assistants and AI search, listed explicitly so they're never in doubt.
+User-agent: GPTBot
+Allow: /
+User-agent: OAI-SearchBot
+Allow: /
+User-agent: ChatGPT-User
+Allow: /
+User-agent: ClaudeBot
+Allow: /
+User-agent: Claude-SearchBot
+Allow: /
+User-agent: PerplexityBot
+Allow: /
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: https://www.praxio.studio/sitemap.xml
