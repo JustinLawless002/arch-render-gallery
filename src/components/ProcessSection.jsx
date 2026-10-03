@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import workflows from '../data/workflows.js';
 import { OPTIONS, estimateQuote, formatRange, projectSize } from '../data/wizardOptions.js';
 import { smoothScrollTo } from '../lib/smoothScroll.js';
+import { markQuote } from '../lib/quoteTracking.js';
 import Reveal from './Reveal.jsx';
 import RevealLines from './RevealLines.jsx';
 import CopyButton, { CONTACT_EMAIL } from './CopyButton.jsx';
@@ -144,6 +145,10 @@ export default function ProcessSection() {
     if (to === LAST) setEditing(false);
     setDir(to > step ? 1 : -1);
     setStep(to);
+    // free funnel tracking (see src/lib/quoteTracking.js)
+    if (to === 1) markQuote('1-started');
+    if (to === 3) markQuote('2-details');
+    if (to === LAST) markQuote('3-summary');
     // keep the wizard in view if it's taller than the screen on phones
     const top = topRef.current?.getBoundingClientRect().top;
     if (top != null && top < 0) {
@@ -176,6 +181,7 @@ export default function ProcessSection() {
       const out = await r.json().catch(() => ({}));
       if (r.ok && out.ok) {
         setSend({ state: 'sent', message: '' });
+        markQuote('4-sent-email');
         return;
       }
       const local = import.meta.env.DEV && (r.status === 404 || !out.error);
@@ -833,7 +839,10 @@ export default function ProcessSection() {
                         rel="noopener noreferrer"
                         // Opening WhatsApp counts as sending: show the done
                         // screen with the estimate, as after "Send brief".
-                        onClick={() => setSend({ state: 'sent', message: '', via: 'whatsapp' })}
+                        onClick={() => {
+                          setSend({ state: 'sent', message: '', via: 'whatsapp' });
+                          markQuote('4-sent-whatsapp');
+                        }}
                       >
                         Send on WhatsApp
                       </a>
@@ -846,7 +855,7 @@ export default function ProcessSection() {
                       </p>
                     )}
                     <p className="wz-note">
-                      Prefer your own email? <a href={mailto}>Open it in your email app</a> or send it to {CONTACT_EMAIL}{' '}
+                      Prefer your own email? <a href={mailto} onClick={() => markQuote('4-own-email')}>Open it in your email app</a> or send it to {CONTACT_EMAIL}{' '}
                       <CopyButton iconOnly />
                     </p>
                   </>
