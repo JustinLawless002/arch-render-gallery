@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import Reveal from './Reveal.jsx';
 import RevealLines from './RevealLines.jsx';
 import SectionLink from './SectionLink.jsx';
+import CoverflowViewer from './CoverflowViewer.jsx';
 import heroImg from '../assets/images/case-study/ofk-hero.webp'; // ofk-01, the first OFK image in the brand carousel
 import logo from '../assets/images/brands/ofk.png';
 import stage1 from '../assets/images/case-study/ofk-site-layout.webp'; // layout plan + existing site photos
@@ -191,67 +192,62 @@ function AutoClip({ src, poster }) {
 
 // Click a stage image to see it full size (the floorplan and mood board
 // are too detailed to read as thumbnails). Click anywhere / Esc to close.
-function Zoom({ item, onClose }) {
-  const images = item.gallery || [item.src];
-  const many = images.length > 1;
-  const [i, setI] = useState(0);
-  const go = (d) => setI((n) => (n + d + images.length) % images.length);
+// Lightbox for the "From concept to final image" boards. Every image of
+// the case study is in one coverflow (same feel as the Projects gallery
+// carousel), starting at the one that was clicked: drag/swipe, click a
+// side image, ← →, or the thumbnails.
+function Zoom({ zoom, onClose }) {
+  const { items, start } = zoom;
+  const [i, setI] = useState(start);
+  const many = items.length > 1;
+  const cur = items[i];
   useEffect(() => {
-    const onKey = (e) => {
-      if (e.key === 'Escape') onClose();
-      if (many && e.key === 'ArrowRight') go(1);
-      if (many && e.key === 'ArrowLeft') go(-1);
-    };
+    const onKey = (e) => e.key === 'Escape' && onClose();
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [onClose, many]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // swipe left/right on phones
-  const t0 = useRef(null);
-  const onTouchStart = (e) => (t0.current = { x: e.touches[0].clientX, y: e.touches[0].clientY });
-  const onTouchEnd = (e) => {
-    if (!t0.current || !many) return;
-    const dx = e.changedTouches[0].clientX - t0.current.x;
-    const dy = e.changedTouches[0].clientY - t0.current.y;
-    t0.current = null;
-    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) go(dx < 0 ? 1 : -1);
-  };
-  const stop = (e) => e.stopPropagation();
+  }, [onClose]);
 
   return createPortal(
-    <div className="cs-zoom" onClick={onClose} role="dialog" aria-label={item.caption}>
-      <div className="cs-zoom__stage" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
-        <img key={images[i]} src={images[i]} alt={`${item.caption}${many ? ` ${i + 1} of ${images.length}` : ''}`} onClick={stop} />
-        {many && (
-          <>
-            <button type="button" className="cs-zoom__nav prev" aria-label="Previous image" onClick={(e) => { stop(e); go(-1); }}>
-              ‹
-            </button>
-            <button type="button" className="cs-zoom__nav next" aria-label="Next image" onClick={(e) => { stop(e); go(1); }}>
-              ›
-            </button>
-          </>
-        )}
-      </div>
+    <div
+      className="cs-zoom"
+      onClick={(e) => !e.target.closest('.cfv, .cs-zoom__thumbs') && onClose()}
+      role="dialog"
+      aria-label={cur.caption}
+    >
+      <CoverflowViewer
+        images={items.map((it) => ({ src: it.src, alt: `${it.caption}${it.part ? ` ${it.part}` : ''}` }))}
+        index={i}
+        onIndexChange={setI}
+        onBackdrop={onClose}
+        label="Case study images"
+      />
       <div className="cs-zoom__cap">
-        {item.caption}
-        {many && ` · ${i + 1} / ${images.length}`}
+        {cur.caption}
+        {cur.part && ` · ${cur.part}`}
       </div>
       {many && (
-        <div className="cs-zoom__thumbs" onClick={stop}>
-          {images.map((src, n) => (
-            <button key={src} type="button" className={n === i ? 'is-active' : ''} onClick={() => setI(n)} aria-label={`Image ${n + 1}`}>
-              <img src={src} alt={`${item.caption} ${n + 1}`} />
+        <div className="cs-zoom__thumbs">
+          {items.map((it, n) => (
+            <button key={`${it.src}-${n}`} type="button" className={n === i ? 'is-active' : ''} onClick={() => setI(n)} aria-label={`Image ${n + 1}: ${it.caption}`}>
+              <img src={it.src} alt="" />
             </button>
           ))}
         </div>
       )}
-      <button type="button" className="cs-zoom__close" aria-label="Close">✕</button>
+      <button type="button" className="cs-zoom__close" aria-label="Close" onClick={onClose}>✕</button>
     </div>,
     document.body
   );
 }
 
+// Every image a case study's boards can open, in order (a board with a
+// gallery contributes all of its images).
+function zoomItems(c) {
+  return (c.stages || []).flatMap((s) => {
+    const list = s.gallery || [s.src];
+    return list.map((src, k) => ({ src, caption: s.caption, part: list.length > 1 ? `${k + 1} / ${list.length}` : null }));
+  });
+}
 
 // The inside of one folder (everything below the tab).
 function CaseBody({ c, onZoom }) {
@@ -312,7 +308,11 @@ function CaseBody({ c, onZoom }) {
             {c.stages.map((s, i) => (
               <Reveal as="div" className="cs-stage" key={s.caption} delay={i * 0.08}>
                 <figure>
-                  <button type="button" className="cs-stage__open" onClick={() => onZoom(s)} aria-label={`View ${s.caption} full size`}>
+                  <button type="button" className="cs-stage__open" onClick={() => {
+                      const items = zoomItems(c);
+                      const start = c.stages.slice(0, i).reduce((sum, p) => sum + (p.gallery?.length || 1), 0);
+                      onZoom({ items, start });
+                    }} aria-label={`View ${s.caption} full size`}>
                     <img src={s.src} alt={s.caption} loading="lazy" />
                     {s.gallery && <span className="cs-stage__chip">{s.gallery.length} images</span>}
                   </button>
@@ -476,6 +476,16 @@ export default function CaseStudy() {
            visible, so its tab lands exactly over its slot. */
         .cs-files { overflow: hidden; overflow: clip; }
         .cs-back { position: absolute; top: 0; left: 0; right: 0; z-index: 1; }
+        /* A sliver of the first folder behind, just under its tab. When a
+           later folder is in front, its page's rounded top-left corner
+           would otherwise show the dark page background there — it looked
+           like a bite cut out of the folder underneath (most visible while
+           the old folder drops away). Now the corner shows this grey
+           instead, so the folders read as one stack. */
+        .cs-back::after {
+          content: ''; position: absolute; left: 0; top: calc(100% - 1px);
+          width: 64px; height: 30px; background: #1b1e20;
+        }
         /* Clicks pass through a folder's tab strip to the real tabs below;
            only its page takes clicks. */
         .cs-folder { position: relative; z-index: 2; pointer-events: none; }
@@ -690,34 +700,7 @@ export default function CaseStudy() {
           animation: cs-zoom-in 260ms cubic-bezier(0.16, 1, 0.3, 1);
         }
         @keyframes cs-zoom-in { from { opacity: 0; } to { opacity: 1; } }
-        .cs-zoom__stage { position: relative; display: flex; align-items: center; justify-content: center; }
-        .cs-zoom__stage > img {
-          max-width: min(1400px, 92vw);
-          max-height: 74vh;
-          object-fit: contain;
-          border-radius: 12px;
-          border: 1px solid var(--line);
-          cursor: default;
-          animation: cs-zoom-in 320ms ease;
-        }
-        .cs-zoom__nav {
-          position: absolute;
-          top: 50%;
-          transform: translateY(-50%);
-          width: 46px;
-          height: 46px;
-          border-radius: 50%;
-          border: 1px solid rgba(255, 255, 255, 0.4);
-          background: rgba(0, 0, 0, 0.45);
-          color: var(--text);
-          font-size: 26px;
-          line-height: 1;
-          cursor: pointer;
-        }
-        .cs-zoom__nav.prev { left: 14px; }
-        .cs-zoom__nav.next { right: 14px; }
-        .cs-zoom__nav:hover { background: var(--text); color: var(--bg); }
-        .cs-zoom__thumbs { display: flex; gap: 10px; cursor: default; }
+        .cs-zoom__thumbs { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; cursor: default; max-width: 92vw; }
         .cs-zoom__thumbs button {
           width: 76px;
           height: 52px;
@@ -750,8 +733,6 @@ export default function CaseStudy() {
           text-transform: uppercase;
         }
         @media (max-width: 640px) {
-          .cs-zoom__nav { display: none; }
-          .cs-zoom__stage > img { max-width: 94vw; max-height: 62vh; }
           .cs-zoom__thumbs button { width: 60px; height: 42px; }
         }
         .cs-zoom__cap { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-dim); }
@@ -837,7 +818,7 @@ export default function CaseStudy() {
         )}
       </Reveal>
 
-      {zoom && <Zoom item={zoom} onClose={() => setZoom(null)} />}
+      {zoom && <Zoom zoom={zoom} onClose={() => setZoom(null)} />}
     </section>
   );
 }

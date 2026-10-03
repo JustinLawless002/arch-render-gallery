@@ -2,6 +2,7 @@ import { memo, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import brandDescriptionsRaw from '../data/brand-descriptions.txt?raw';
 import SectionLink from './SectionLink.jsx';
+import CoverflowViewer from './CoverflowViewer.jsx';
 
 // Brand carousel on the homepage, right under the "Projects gallery"
 // heading: a 3D "coverflow" (centre slide flat, neighbours turned
@@ -509,32 +510,13 @@ function BrandLightbox({ brand, onClose }) {
   const [index, setIndex] = useState(0);
   const renders = brand.renders;
   const paragraphs = brand.description ? brand.description.split(/\n{2,}/) : [];
-  const prevIndex = (index - 1 + renders.length) % renders.length;
-  const nextIndex = (index + 1) % renders.length;
 
+  // ← → and swiping are handled by the coverflow viewer itself.
   useEffect(() => {
-    const onKey = (e) => {
-      if (e.key === 'Escape') onClose();
-      if (e.key === 'ArrowRight') setIndex((i) => (i + 1) % renders.length);
-      if (e.key === 'ArrowLeft') setIndex((i) => (i - 1 + renders.length) % renders.length);
-    };
+    const onKey = (e) => e.key === 'Escape' && onClose();
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [renders.length, onClose]);
-
-  const touchStartRef = useRef(null);
-  const onTouchStart = (e) => {
-    const t = e.touches[0];
-    touchStartRef.current = { x: t.clientX, y: t.clientY };
-  };
-  const onTouchEnd = (e) => {
-    if (!touchStartRef.current) return;
-    const t = e.changedTouches[0];
-    const dx = t.clientX - touchStartRef.current.x;
-    const dy = t.clientY - touchStartRef.current.y;
-    touchStartRef.current = null;
-    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) setIndex(dx < 0 ? nextIndex : prevIndex);
-  };
+  }, [onClose]);
 
   return createPortal(
     // Any click on empty black space closes it; clicks on the images,
@@ -542,6 +524,8 @@ function BrandLightbox({ brand, onClose }) {
     <div
       className="brand-lightbox"
       onClick={(e) => {
+        // The image viewer handles its own clicks (and drags) — see onBackdrop.
+        if (e.target.closest('.cfv')) return;
         if (!e.target.closest('img, button, a, .brand-lightbox__title, .brand-lightbox__description p')) onClose();
       }}
     >
@@ -550,35 +534,12 @@ function BrandLightbox({ brand, onClose }) {
           position: fixed; inset: 0; z-index: 1000;
           background: rgba(8, 9, 9, 0.94);
           display: flex; flex-direction: column; align-items: center; justify-content: center;
-          padding: 32px; overflow-y: auto;
+          padding: 32px; overflow-y: auto; overflow-x: hidden;
           animation: brand-lightbox-in 260ms cubic-bezier(0.16, 1, 0.3, 1);
         }
         @keyframes brand-lightbox-in { from { opacity: 0; } to { opacity: 1; } }
-        .brand-lightbox__row { display: flex; align-items: center; justify-content: center; gap: 20px; width: 100%; }
-        .brand-lightbox__stage {
-          position: relative; max-width: 70vw; max-height: 68vh;
-          display: flex; align-items: center; justify-content: center; flex: 0 1 auto;
-        }
-        .brand-lightbox__stage img {
-          max-width: 70vw; max-height: 68vh; object-fit: contain;
-          border: 1px solid var(--line); display: block;
-        }
-        .brand-lightbox__nav {
-          position: absolute; top: 50%; transform: translateY(-50%);
-          width: 44px; height: 44px; border-radius: 50%;
-          border: 1px solid rgba(255, 255, 255, 0.4); background: rgba(0, 0, 0, 0.45);
-          color: var(--text); font-size: 16px; cursor: pointer;
-        }
-        .brand-lightbox__nav.prev { left: 14px; }
-        .brand-lightbox__nav.next { right: 14px; }
-        .brand-lightbox__side-thumb {
-          flex: 0 0 auto; width: 84px; height: 84px; padding: 0; border-radius: 10px;
-          border: 1px solid var(--line); background: var(--bg-elevated); overflow: hidden;
-          cursor: pointer; opacity: 0.6;
-          transition: opacity 200ms ease, transform 200ms ease;
-        }
-        .brand-lightbox__side-thumb:hover { opacity: 1; transform: scale(1.05); }
-        .brand-lightbox__side-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .brand-lightbox .cfv { flex: 0 0 auto; }
+        .brand-lightbox__count { margin-top: 14px; font-size: 13px; color: var(--text-dim); text-align: center; }
         /* Text block: centred on the page, text inside left-aligned, with the
            "Start a project like this" button on the right, level with the title. */
         .brand-lightbox__text {
@@ -614,19 +575,18 @@ function BrandLightbox({ brand, onClose }) {
           border: 1px solid rgba(255, 255, 255, 0.4); background: rgba(0, 0, 0, 0.3);
           color: var(--text); font-size: 18px; cursor: pointer; z-index: 1;
         }
-        .brand-lightbox__mobile-thumbs { display: none; }
-        @media (max-width: 900px) { .brand-lightbox__side-thumb { display: none; } }
+        /* Thumbnail strip under the viewer: jump straight to any image. */
+        .brand-lightbox__mobile-thumbs { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 14px; }
+        .brand-lightbox__mobile-thumbs button {
+          width: 58px; height: 58px; padding: 0; border-radius: 10px;
+          border: 1px solid var(--line); background: var(--bg-elevated); overflow: hidden;
+          cursor: pointer; opacity: 0.55; transition: opacity 200ms ease, border-color 200ms ease;
+        }
+        .brand-lightbox__mobile-thumbs button:hover { opacity: 0.85; }
+        .brand-lightbox__mobile-thumbs button.is-active { opacity: 1; border-color: var(--accent); }
+        .brand-lightbox__mobile-thumbs img { width: 100%; height: 100%; object-fit: cover; display: block; }
         @media (max-width: 640px) {
-          .brand-lightbox__stage img { max-width: 90vw; max-height: 50vh; }
-          .brand-lightbox__nav { display: none; }
-          .brand-lightbox__mobile-thumbs { display: flex; gap: 10px; justify-content: center; margin-top: 14px; }
-          .brand-lightbox__mobile-thumbs button {
-            width: 58px; height: 58px; padding: 0; border-radius: 10px;
-            border: 1px solid var(--line); background: var(--bg-elevated); overflow: hidden;
-            cursor: pointer; opacity: 0.55;
-          }
-          .brand-lightbox__mobile-thumbs button.is-active { opacity: 1; border-color: var(--accent); }
-          .brand-lightbox__mobile-thumbs img { width: 100%; height: 100%; object-fit: cover; display: block; }
+          .brand-lightbox__mobile-thumbs button { width: 48px; height: 48px; }
         }
       `}</style>
 
@@ -634,31 +594,18 @@ function BrandLightbox({ brand, onClose }) {
         ✕
       </button>
 
-      <div className="brand-lightbox__row">
-        {renders.length > 1 && (
-          <button type="button" className="brand-lightbox__side-thumb" onClick={() => setIndex(prevIndex)} aria-label="Previous image">
-            <img src={renders[prevIndex]} alt="" aria-hidden="true" />
-          </button>
-        )}
-        <div className="brand-lightbox__stage" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
-          <img src={renders[index]} alt={`${brand.name} — image ${index + 1}`} />
-          {renders.length > 1 && (
-            <>
-              <button type="button" className="brand-lightbox__nav prev" onClick={() => setIndex(prevIndex)} aria-label="Previous image">
-                &lt;
-              </button>
-              <button type="button" className="brand-lightbox__nav next" onClick={() => setIndex(nextIndex)} aria-label="Next image">
-                &gt;
-              </button>
-            </>
-          )}
+      <CoverflowViewer
+        images={renders.map((src, i) => ({ src, alt: `${brand.name} — image ${i + 1}` }))}
+        index={index}
+        onIndexChange={setIndex}
+        onBackdrop={onClose}
+        label={`${brand.name} images`}
+      />
+      {renders.length > 1 && (
+        <div className="brand-lightbox__count">
+          {index + 1} / {renders.length} · drag, swipe or use ← →
         </div>
-        {renders.length > 1 && (
-          <button type="button" className="brand-lightbox__side-thumb" onClick={() => setIndex(nextIndex)} aria-label="Next image">
-            <img src={renders[nextIndex]} alt="" aria-hidden="true" />
-          </button>
-        )}
-      </div>
+      )}
 
       {renders.length > 1 && (
         <div className="brand-lightbox__mobile-thumbs">

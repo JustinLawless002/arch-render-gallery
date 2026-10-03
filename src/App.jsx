@@ -205,7 +205,6 @@ function HidingHeader() {
           {!onHome && (
             <>
               <SectionLink to="/#about" className="nav-cta">About</SectionLink>
-              <ContactButton className="nav-cta" />
             </>
           )}
         </motion.nav>
@@ -227,6 +226,16 @@ function HidingHeader() {
       </motion.header>
       <MobileMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
     </>
+  );
+}
+
+// Contact button that follows the screen: always in the bottom-right
+// corner, on every page. Its panel (email + WhatsApp) opens upwards.
+function ContactFloat() {
+  return (
+    <div className="contact-float">
+      <ContactButton className="nav-cta" placement="up" />
+    </div>
   );
 }
 
@@ -253,7 +262,10 @@ function Home() {
           corner={
             <>
               <SectionLink to="/#about" className="nav-cta">About</SectionLink>
-              <ContactButton className="nav-cta" placement="up" />
+              {/* Keeps About exactly one button-width to the left of the
+                  floating Contact button, which sits in the screen's
+                  bottom-right corner (see ContactFloat). */}
+              <span className="nav-cta hero__corner-spacer" aria-hidden="true">Contact</span>
             </>
           }
         >
@@ -398,7 +410,8 @@ export default function App() {
            more-specific selector guarantees the nav row's look applies
            regardless of load order. */
         .nav-actions .contact-btn,
-        .hero__corner .contact-btn {
+        .hero__corner .contact-btn,
+        .contact-float .contact-btn {
           display: inline-flex;
           align-items: center;
           padding: 8px 16px;
@@ -414,7 +427,8 @@ export default function App() {
           cursor: pointer;
           transition: background 180ms ease, color 180ms ease, border-color 180ms ease;
         }
-        .hero__corner .nav-cta {
+        .hero__corner .nav-cta,
+        .contact-float .contact-btn {
           background: rgba(0, 0, 0, 0.28);
           -webkit-backdrop-filter: blur(8px);
           backdrop-filter: blur(8px);
@@ -423,10 +437,24 @@ export default function App() {
         }
         .hero__corner .nav-cta:hover { background: var(--text); }
         .nav-actions .contact-btn:hover,
-        .hero__corner .contact-btn:hover {
+        .hero__corner .contact-btn:hover,
+        .contact-float .contact-btn:hover {
           background: var(--text);
           color: var(--bg);
           border-color: var(--text);
+        }
+
+        /* Floating Contact button (ContactFloat). Above the page, below the
+           mobile menu (90), header (100) and lightboxes (1000). */
+        .contact-float {
+          position: fixed;
+          right: var(--page-gutter);
+          bottom: 28px;
+          z-index: 80;
+        }
+        .hero__corner-spacer { visibility: hidden; pointer-events: none; }
+        @media (max-width: 640px) {
+          .contact-float { right: 16px; bottom: 16px; }
         }
 
         /* Pushes every routed page down below the fixed header. The hero
@@ -565,6 +593,7 @@ export default function App() {
       <ScrollToTop />
 
       <HidingHeader />
+      <ContactFloat />
 
       <div className="route-content">
         <CanonicalLink />

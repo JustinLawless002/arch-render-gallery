@@ -74,13 +74,14 @@
   );
 }
 
-/* About + Contact, floating over the video's bottom-right corner. Sits on
-   the same baseline as the headline block on the left. */
+/* About, floating over the video's bottom-right corner, just left of the
+   Contact button (which floats over every page — see App.jsx). */
 .hero__corner {
   position: absolute;
   z-index: 4;
   right: var(--page-gutter, 6vw);
-  bottom: 9vh;
+  /* level with the floating Contact button (App.jsx .contact-float) */
+  bottom: 28px;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -186,13 +187,23 @@
 }
 
 /* "Free instant quote" button under the hero text. Fades in after the
-   headline; same outline look as the wizard buttons. */
+   headline. */
 .hero__cta.hero__quote {
+  /* Solid white with black text (owner's choice, 2026-10-04) — the
+     header's "Instant quote" link keeps the outline look. */
+  background: #f5f4f1;
+  color: #0a0a0a;
+  border-color: #f5f4f1;
   margin-top: 6px;
   border-radius: 10px;
   font-size: 0.9rem;
   padding: 11px 22px;
   animation: hero-quote-in 700ms ease 1.1s both;
+}
+.hero__cta.hero__quote:hover {
+  background: transparent;
+  color: #f5f4f1;
+  border-color: rgba(245, 244, 241, 0.75);
 }
 @keyframes hero-quote-in {
   from { opacity: 0; transform: translateY(8px); }
