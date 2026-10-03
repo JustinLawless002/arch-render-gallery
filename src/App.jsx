@@ -66,10 +66,8 @@ function ScrollToTop() {
 // the renders. Needs ~24px of consistent movement in one direction before it
 // reacts, so a jittery trackpad doesn't make it flicker. Also reappears when
 // something inside it receives keyboard focus.
-// Header section links. About + Contact aren't in this list on the
-// homepage — there they float over the hero's bottom-right corner instead
-// (see Home below) — but they're added back into the header on other pages,
-// which have no hero, so they're always reachable.
+// Header section links. About is added after these on every page; Contact
+// floats in the screen's bottom-right corner instead (ContactFloat).
 const NAV_LINKS = [
   { id: 'gallery', label: 'Portfolio' },
   { id: 'case-study', label: 'Case studies' },
@@ -202,11 +200,7 @@ function HidingHeader() {
               {l.label}
             </SectionLink>
           ))}
-          {!onHome && (
-            <>
-              <SectionLink to="/#about" className="nav-cta">About</SectionLink>
-            </>
-          )}
+          <SectionLink to="/#about" className="nav-cta">About</SectionLink>
         </motion.nav>
 
         <motion.button
@@ -258,17 +252,7 @@ function Home() {
   return (
     <>
       <main>
-        <HeroBanner
-          corner={
-            <>
-              <SectionLink to="/#about" className="nav-cta">About</SectionLink>
-              {/* Keeps About exactly one button-width to the left of the
-                  floating Contact button, which sits in the screen's
-                  bottom-right corner (see ContactFloat). */}
-              <span className="nav-cta hero__corner-spacer" aria-hidden="true">Contact</span>
-            </>
-          }
-        >
+        <HeroBanner>
           <RevealLines as="h1" className="hero__headline" text="Practical design solutions." delay={0.15} />
           <RevealLines
             as="p"
@@ -452,7 +436,6 @@ export default function App() {
           bottom: 28px;
           z-index: 80;
         }
-        .hero__corner-spacer { visibility: hidden; pointer-events: none; }
         @media (max-width: 640px) {
           .contact-float { right: 16px; bottom: 16px; }
         }

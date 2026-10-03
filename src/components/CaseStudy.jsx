@@ -36,6 +36,7 @@ const CASE = {
   id: 'ofk',
   eyebrow: 'Case study',
   title: 'Open Flame Kitchen',
+  short: 'OFK', // tab label on phones, so the tab stays one line
   hero: { src: heroImg, alt: 'OFK Kuwait dining room render', logo },
   lede: 'An upscale open-flame grill concept at Al Hamra Tower & Mall, Kuwait City, built around a theatrical show kitchen.',
   facts: [
@@ -402,7 +403,14 @@ function TabRow({ role, onSelect, activeId, ownId, depth }) {
           >
             {i > 0 && <Ramp side="l" />}
             {/* non-breaking hyphens so "K-Land" never splits across lines */}
-            {c.title.replace(/-/g, '\u2011')}
+            {c.short ? (
+              <>
+                <span className="cs-tab__full">{c.title.replace(/-/g, '\u2011')}</span>
+                <span className="cs-tab__short" aria-hidden="true">{c.short}</span>
+              </>
+            ) : (
+              c.title.replace(/-/g, '\u2011')
+            )}
             <Ramp side="r" />
           </button>
         );
@@ -543,6 +551,7 @@ export default function CaseStudy() {
         .cs-tab.is-front { margin-top: 0; }
         .cs-tab.is-first { border-top-left-radius: 28px; }
         .cs-tab:hover { color: var(--text); }
+        .cs-tab__short { display: none; }
         .cs-tab.is-front { color: var(--text); cursor: default; }
         .cs-tab:focus-visible { outline: 1px solid var(--text); outline-offset: -6px; }
         .cs-tab__ramp {
@@ -782,7 +791,11 @@ export default function CaseStudy() {
           .case-study { padding: 56px 16px 56px; }
           /* Phones: tabs shrink and titles wrap so all tabs fit in one row. */
           .cs-files { --step: 8px; --ramp: 20px; }
-          .cs-tab { max-width: 38%; padding: 12px 11px 6px; font-size: 13px; white-space: normal; }
+          /* Phones: one-line tabs sized to their text; long names use their
+             short label (e.g. "OFK"). */
+          .cs-tab { padding: 12px 16px 6px; font-size: 14px; white-space: nowrap; }
+          .cs-tab__full { display: none; }
+          .cs-tab__short { display: inline; }
           .cs-tab + .cs-tab { margin-left: calc(var(--ramp) + 4px); }
           .cs-tab.is-first { border-top-left-radius: 20px; }
           .cs-folder__body { padding: 22px 20px 32px; border-radius: 20px; }

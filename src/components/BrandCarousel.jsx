@@ -539,7 +539,6 @@ function BrandLightbox({ brand, onClose }) {
         }
         @keyframes brand-lightbox-in { from { opacity: 0; } to { opacity: 1; } }
         .brand-lightbox .cfv { flex: 0 0 auto; }
-        .brand-lightbox__count { margin-top: 14px; font-size: 13px; color: var(--text-dim); text-align: center; }
         /* Text block: centred on the page, text inside left-aligned, with the
            "Start a project like this" button on the right, level with the title. */
         .brand-lightbox__text {
@@ -587,6 +586,11 @@ function BrandLightbox({ brand, onClose }) {
         .brand-lightbox__mobile-thumbs img { width: 100%; height: 100%; object-fit: cover; display: block; }
         @media (max-width: 640px) {
           .brand-lightbox__mobile-thumbs button { width: 48px; height: 48px; }
+          /* Phones: start the content below the close button instead of
+             letting it pin to the top, and fit the viewer to a landscape
+             image so there's no big empty band above and below it. */
+          .brand-lightbox { justify-content: flex-start; padding: 96px 16px 40px; }
+          .brand-lightbox .cfv { --cfv-h: min(64vw, 52vh); }
         }
       `}</style>
 
@@ -601,11 +605,6 @@ function BrandLightbox({ brand, onClose }) {
         onBackdrop={onClose}
         label={`${brand.name} images`}
       />
-      {renders.length > 1 && (
-        <div className="brand-lightbox__count">
-          {index + 1} / {renders.length} · drag, swipe or use ← →
-        </div>
-      )}
 
       {renders.length > 1 && (
         <div className="brand-lightbox__mobile-thumbs">
