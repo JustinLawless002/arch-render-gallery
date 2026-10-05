@@ -51,7 +51,7 @@ export const OPTIONS = {
 export const PRICING = {
   // Overall level: multiplies every estimate. 1 = as calibrated below,
   // 1.15 = 15% higher. The easiest dial for raising or lowering all prices.
-  overall: 1.15,
+  overall: 1.25,
   base: 300, // every project; also works as the minimum fee
   rate: [19, 25], // [low, high] — sets the width of the range
   exponent: 0.77,
