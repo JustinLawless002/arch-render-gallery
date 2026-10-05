@@ -20,7 +20,7 @@ branch `main`. Live at **praxio.studio** (primedesign.design redirects there).
 Hero video (About + Contact float bottom-right) → **Projects gallery**
 (BrandCarousel coverflow → Gallery grid → Motion clips as a subsection) →
 **Case study** (OFK) → **Start your project** wizard → About → Services →
-Testimonials → Footer.
+Testimonials → **From the studio** drifting image strips (SocialStrips) → Footer.
 Routes: `/`, `/project/:slug` (ProjectDetail), `/process/:slug` (WorkflowPage).
 
 ## Where things live
@@ -39,6 +39,7 @@ Routes: `/`, `/project/:slug` (ProjectDetail), `/process/:slug` (WorkflowPage).
 | Workflows (3 process pages) | `src/data/workflows.js` |
 | Services cards | `groups` at top of `src/components/Services.jsx` |
 | Testimonials | `src/data/testimonials.txt` |
+| "From the studio" drifting strips | drop images in `social-feed/` (repo root, git-ignored); a Vite plugin (`scripts/social-tiles.js`) makes 400×500 webp tiles in `src/assets/images/social-tiles/` on dev start/build. Speed etc. at top of `src/components/SocialStrips.jsx` |
 | About text | `src/components/About.jsx` |
 | Contact email / WhatsApp | `CONTACT_EMAIL` in `src/components/CopyButton.jsx`; WhatsApp in ContactButton, App (mobile menu), SiteFooter, ProcessSection |
 | Scroll speed for section links | top of `src/lib/smoothScroll.js` |

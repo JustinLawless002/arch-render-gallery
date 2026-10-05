@@ -2,3 +2,6 @@ node_modules
 dist
 .DS_Store
 *.log
+
+# Originals for the "From the studio" strips (only the small tiles are committed)
+social-feed/

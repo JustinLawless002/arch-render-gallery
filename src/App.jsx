@@ -15,6 +15,7 @@ import CaseStudy from './components/CaseStudy.jsx';
 import About from './components/About.jsx';
 import Services from './components/Services.jsx';
 import Testimonials from './components/Testimonials.jsx';
+import SocialStrips from './components/SocialStrips.jsx';
 import SiteFooter from './components/SiteFooter.jsx';
 import ProjectDetail from './components/ProjectDetail.jsx';
 import HeroBanner from './components/HeroBanner.jsx';
@@ -257,7 +258,7 @@ function Home() {
           <RevealLines
             as="p"
             className="hero__subtext"
-            text="A flexible design process that lets you fine-tune your project at every step of the way."
+            text="A flexible design process that lets you fine-tune your project at every step of the way. Accurate 3D designs enhanced by AI."
             delay={0.4}
             stagger={0.06}
           />
@@ -283,6 +284,7 @@ function Home() {
         <About />
         <Services />
         <Testimonials />
+        <SocialStrips />
       </main>
       <SiteFooter />
     </>

@@ -98,6 +98,9 @@ export default function SiteFooter() {
           <a href="https://www.instagram.com/praxiodesign" target="_blank" rel="noopener noreferrer">
             Instagram
           </a>
+          <a href="https://x.com/praxiostudio" target="_blank" rel="noopener noreferrer">
+            X
+          </a>
         </Reveal>
       </div>
 
